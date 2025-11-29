@@ -1,0 +1,71 @@
+---
+import type { User } from '../../types/database';
+
+interface Props {
+  user?: User | null;
+  showNav?: boolean;
+}
+
+const { user, showNav = true } = Astro.props;
+---
+
+<header class="border-b border-light bg-white">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <a href="/" class="flex items-center gap-2 no-underline">
+          <span class="text-xl font-bold text-primary">PrimeBridge</span>
+          <span class="text-xl font-normal text-darkest">Finance</span>
+        </a>
+      </div>
+
+      <!-- Navigation -->
+      {showNav && (
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="/#how-it-works" class="text-dark hover:text-darkest no-underline">
+            How it works
+          </a>
+          <a href="/#for-businesses" class="text-dark hover:text-darkest no-underline">
+            For Businesses
+          </a>
+          <a href="/#for-investors" class="text-dark hover:text-darkest no-underline">
+            For Investors
+          </a>
+        </nav>
+      )}
+
+      <!-- Auth buttons -->
+      <div class="flex items-center gap-4">
+        {user ? (
+          <div class="flex items-center gap-4">
+            <span class="text-dark text-sm">{user.email}</span>
+            <form action="/api/auth/logout" method="POST">
+              <button
+                type="submit"
+                class="text-primary underline underline-offset-2 hover:text-primary-hover"
+              >
+                Log out
+              </button>
+            </form>
+          </div>
+        ) : (
+          <>
+            <a
+              href="/login"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover"
+            >
+              Log in
+            </a>
+            <a
+              href="/apply"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-5 rounded-md font-semibold no-underline"
+            >
+              Apply for financing
+            </a>
+          </>
+        )}
+      </div>
+    </div>
+  </div>
+</header>

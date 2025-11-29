@@ -1,0 +1,323 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { getAuthUser } from '../lib/auth';
+
+const authUser = await getAuthUser(Astro.cookies);
+---
+
+<BaseLayout title="Private Credit Marketplace">
+  <Header user={authUser?.user} />
+
+  <!-- Hero Section -->
+  <section class="py-20 lg:py-32 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl lg:text-5xl font-bold text-darkest leading-tight">
+          Institutional-grade private credit, without the Wall Street gatekeepers.
+        </h1>
+        <p class="mt-6 text-xl text-dark max-w-2xl">
+          A marketplace where real businesses can access private credit and accredited investors can fund deals, all through a transparent, tech-driven platform.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row gap-4">
+          <a
+            href="/apply"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline text-base"
+          >
+            Apply for financing
+          </a>
+          <a
+            href="/invest"
+            class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[48px] px-6 rounded-md font-semibold no-underline text-base"
+          >
+            View sample deals (for investors)
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section id="how-it-works" class="py-20 bg-lightest">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-darkest text-center mb-16">
+        How PrimeBridge works
+      </h2>
+      <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+        <!-- Step 1 -->
+        <div class="bg-white rounded-lg p-8 border border-light">
+          <div class="w-12 h-12 rounded-full bg-primary/10 text-primary font-bold text-xl flex items-center justify-center mb-6">
+            1
+          </div>
+          <h3 class="text-xl font-semibold text-darkest mb-4">
+            Businesses apply once
+          </h3>
+          <p class="text-dark">
+            Upload financials, connect bank accounts, and answer a short questionnaire. We turn your info into a clean credit memo behind the scenes.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bg-white rounded-lg p-8 border border-light">
+          <div class="w-12 h-12 rounded-full bg-primary/10 text-primary font-bold text-xl flex items-center justify-center mb-6">
+            2
+          </div>
+          <h3 class="text-xl font-semibold text-darkest mb-4">
+            We underwrite and structure the deal
+          </h3>
+          <p class="text-dark">
+            Our engine and credit team analyze cashflow, risk, and repayment capacity, then structure terms that make sense for both sides.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bg-white rounded-lg p-8 border border-light">
+          <div class="w-12 h-12 rounded-full bg-primary/10 text-primary font-bold text-xl flex items-center justify-center mb-6">
+            3
+          </div>
+          <h3 class="text-xl font-semibold text-darkest mb-4">
+            Investors fund, you get capital
+          </h3>
+          <p class="text-dark">
+            Pre-vetted investors review the deal, commit capital, and the loan is funded through our banking partners. You get a single, simple facility.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Businesses -->
+  <section id="for-businesses" class="py-20 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl font-bold text-darkest mb-8">
+            For growing businesses that banks won't (or can't) fund
+          </h2>
+          <ul class="space-y-6">
+            <li class="flex gap-4">
+              <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-darkest">Non-bank credit from $500K–$10M</h4>
+                <p class="text-dark mt-1">Growth, acquisitions, working capital, or refinancing.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-darkest">Fast, transparent process</h4>
+                <p class="text-dark mt-1">A single application, clear timelines, and real humans you can talk to.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-darkest">Keep control</h4>
+                <p class="text-dark mt-1">Debt solutions that don't demand board seats or equity.</p>
+              </div>
+            </li>
+          </ul>
+          <a
+            href="/apply"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline text-base mt-8"
+          >
+            See if your business qualifies
+          </a>
+        </div>
+        <div class="bg-lightest rounded-lg p-8 border border-light">
+          <div class="aspect-video bg-gradient-to-br from-primary/5 to-primary/10 rounded-md flex items-center justify-center">
+            <span class="text-dark">Business Dashboard Preview</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Investors -->
+  <section id="for-investors" class="py-20 bg-lightest">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="order-2 lg:order-1 bg-white rounded-lg p-8 border border-light">
+          <div class="aspect-video bg-gradient-to-br from-primary/5 to-primary/10 rounded-md flex items-center justify-center">
+            <span class="text-dark">Deal Room Preview</span>
+          </div>
+        </div>
+        <div class="order-1 lg:order-2">
+          <h2 class="text-3xl font-bold text-darkest mb-8">
+            For investors who want yield with actual underwriting
+          </h2>
+          <ul class="space-y-6">
+            <li class="flex gap-4">
+              <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-darkest">Access real private-credit deals</h4>
+                <p class="text-dark mt-1">Direct exposure to underwritten loans you'd never see in public markets.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-darkest">Structured, standardized data</h4>
+                <p class="text-dark mt-1">Every deal comes with a consistent credit memo, financials, and risk view.</p>
+              </div>
+            </li>
+            <li class="flex gap-4">
+              <div class="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-darkest">We handle the plumbing</h4>
+                <p class="text-dark mt-1">Docs, servicing, repayments, reporting — all handled by PrimeBridge and partners.</p>
+              </div>
+            </li>
+          </ul>
+          <a
+            href="/invest"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline text-base mt-8"
+          >
+            Request investor access
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why PrimeBridge -->
+  <section class="py-20 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-darkest text-center mb-4">
+        Why this isn't just another lending platform
+      </h2>
+      <p class="text-xl text-dark text-center max-w-2xl mx-auto mb-16">
+        We're building the infrastructure for private credit that works for everyone.
+      </p>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-darkest mb-3">
+            Deal size the big funds ignore
+          </h3>
+          <p class="text-dark">
+            We focus on check sizes too small for mega-funds but too complex for banks.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-darkest mb-3">
+            Technology + real credit work
+          </h3>
+          <p class="text-dark">
+            We use data connections and automation to move fast, but every deal gets human eyes.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 rounded-full bg-primary/10 mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-darkest mb-3">
+            Aligned incentives
+          </h3>
+          <p class="text-dark">
+            We earn when good deals close and perform — not from hidden junk fees.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases -->
+  <section class="py-20 bg-lightest">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-darkest text-center mb-16">
+        Who uses PrimeBridge?
+      </h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white rounded-lg p-8 border border-light">
+          <h3 class="text-xl font-semibold text-darkest mb-4">
+            Founder-owned services company
+          </h3>
+          <p class="text-dark">
+            Uses PrimeBridge to finance an acquisition of a smaller competitor.
+          </p>
+        </div>
+        <div class="bg-white rounded-lg p-8 border border-light">
+          <h3 class="text-xl font-semibold text-darkest mb-4">
+            E-commerce brand with lumpy cashflow
+          </h3>
+          <p class="text-dark">
+            Needs working capital without diluting equity.
+          </p>
+        </div>
+        <div class="bg-white rounded-lg p-8 border border-light">
+          <h3 class="text-xl font-semibold text-darkest mb-4">
+            Independent sponsor / search fund
+          </h3>
+          <p class="text-dark">
+            Needs a credit partner for a small-cap buyout.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 bg-primary">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl font-bold text-white mb-6">
+        Ready to get started?
+      </h2>
+      <p class="text-xl text-white/80 max-w-2xl mx-auto mb-10">
+        Whether you're looking for capital or looking to invest, PrimeBridge is here to help.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="/apply"
+          class="inline-flex items-center justify-center bg-white text-primary hover:bg-lightest min-h-[48px] px-6 rounded-md font-semibold no-underline text-base"
+        >
+          Apply for financing
+        </a>
+        <a
+          href="/invest"
+          class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white/10 min-h-[48px] px-6 rounded-md font-semibold no-underline text-base"
+        >
+          Request investor access
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>

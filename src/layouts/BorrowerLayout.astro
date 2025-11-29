@@ -1,0 +1,44 @@
+---
+import '../styles/global.css';
+import Sidebar from '../components/layout/Sidebar.astro';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const user = Astro.locals.user;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | PrimeBridge Finance</title>
+  </head>
+  <body class="min-h-screen bg-lightest antialiased">
+    <div class="flex">
+      <Sidebar role="borrower" currentPath={currentPath} />
+
+      <main class="flex-1">
+        <!-- Top bar -->
+        <header class="h-16 bg-white border-b border-light flex items-center justify-between px-8">
+          <h1 class="text-xl font-semibold text-darkest">{title}</h1>
+          {user && (
+            <div class="flex items-center gap-4">
+              <span class="text-dark">{user.name || user.email}</span>
+            </div>
+          )}
+        </header>
+
+        <!-- Content -->
+        <div class="p-8">
+          <slot />
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import { LoginForm } from '../components/forms/LoginForm';
+
+const redirect = Astro.url.searchParams.get('redirect');
+---
+
+<BaseLayout title="Log in">
+  <Header showNav={false} />
+
+  <main class="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4">
+    <div class="w-full max-w-md">
+      <div class="bg-white rounded-lg border border-light p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold text-darkest">Welcome back</h1>
+          <p class="text-dark mt-2">Log in to your PrimeBridge account</p>
+        </div>
+
+        <LoginForm client:load />
+      </div>
+    </div>
+  </main>
+</BaseLayout>

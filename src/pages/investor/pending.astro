@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/layout/Header.astro';
+
+const user = Astro.locals.user;
+---
+
+<BaseLayout title="Pending Approval">
+  <Header user={user} showNav={false} />
+
+  <main class="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4">
+    <div class="w-full max-w-md text-center">
+      <div class="bg-white rounded-lg border border-light p-8">
+        <div class="w-16 h-16 rounded-full bg-amber-100 mx-auto mb-6 flex items-center justify-center">
+          <svg class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+
+        <h1 class="text-2xl font-bold text-darkest mb-4">Account pending approval</h1>
+
+        <p class="text-dark mb-6">
+          Thank you for requesting investor access. Our team is reviewing your application and will notify you once approved.
+        </p>
+
+        <p class="text-sm text-medium">
+          This usually takes 1-2 business days. You'll receive an email when your account is ready.
+        </p>
+
+        <div class="mt-8 pt-6 border-t border-light">
+          <form action="/api/auth/logout" method="POST">
+            <button
+              type="submit"
+              class="text-primary underline underline-offset-2 hover:text-primary-hover"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

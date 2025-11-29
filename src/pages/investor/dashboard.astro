@@ -1,0 +1,102 @@
+---
+import InvestorLayout from '../../layouts/InvestorLayout.astro';
+import { createSupabaseServerClient } from '../../lib/supabase';
+import { formatCurrency } from '../../lib/utils';
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get investor profile
+const { data: investor } = await supabase
+  .from('investors')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+// Get published deals count
+const { count: dealsCount } = await supabase
+  .from('deals')
+  .select('*', { count: 'exact', head: true })
+  .eq('published', true);
+
+// Get investor's interests
+const { data: interests } = await supabase
+  .from('investor_interest')
+  .select('*, deals(*)')
+  .eq('investor_id', investor?.id);
+
+const totalIndicated = interests?.reduce((sum, i) => sum + (i.amount_indicated || 0), 0) || 0;
+---
+
+<InvestorLayout title="Investor Dashboard">
+  <div class="space-y-8">
+    <!-- Welcome Section -->
+    <div class="bg-white rounded-lg border border-light p-6">
+      <h2 class="text-xl font-semibold text-darkest mb-2">
+        Welcome back, {user.name || 'Investor'}!
+      </h2>
+      <p class="text-dark">
+        Browse available deals and indicate your interest in funding opportunities.
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-lg border border-light p-6">
+        <p class="text-sm font-medium text-dark uppercase tracking-wide">Available deals</p>
+        <p class="text-3xl font-bold text-darkest mt-2">{dealsCount || 0}</p>
+      </div>
+      <div class="bg-white rounded-lg border border-light p-6">
+        <p class="text-sm font-medium text-dark uppercase tracking-wide">Your interests</p>
+        <p class="text-3xl font-bold text-darkest mt-2">{interests?.length || 0}</p>
+      </div>
+      <div class="bg-white rounded-lg border border-light p-6">
+        <p class="text-sm font-medium text-dark uppercase tracking-wide">Total indicated</p>
+        <p class="text-3xl font-bold text-darkest mt-2">{formatCurrency(totalIndicated)}</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg border border-light p-6">
+      <h3 class="text-lg font-semibold text-darkest mb-4">Quick actions</h3>
+      <div class="flex flex-wrap gap-4">
+        <a
+          href="/deals"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-5 rounded-md font-semibold no-underline text-sm"
+        >
+          Browse deals
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Interests -->
+    {interests && interests.length > 0 && (
+      <div class="bg-white rounded-lg border border-light">
+        <div class="p-6 border-b border-light">
+          <h3 class="text-lg font-semibold text-darkest">Your recent interests</h3>
+        </div>
+        <div class="divide-y divide-light">
+          {interests.slice(0, 5).map((interest) => (
+            <div class="p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="font-semibold text-darkest">{interest.deals?.title}</h4>
+                  <p class="text-dark text-sm mt-1">
+                    Indicated: {formatCurrency(interest.amount_indicated)}
+                  </p>
+                </div>
+                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 capitalize">
+                  {interest.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</InvestorLayout>
