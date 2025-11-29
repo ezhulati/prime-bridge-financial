@@ -47,35 +47,35 @@ const statusColors: Record<LenderStatus, string> = {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-light p-4">
+    <div class="bg-white rounded-2xl border border-light p-4">
       <div class="flex flex-wrap gap-2">
         <a
           href="/admin/lenders"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${!statusFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${!statusFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           All
         </a>
         <a
           href="/admin/lenders?status=pending"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'pending' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'pending' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Pending
         </a>
         <a
           href="/admin/lenders?status=under_review"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'under_review' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'under_review' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Under Review
         </a>
         <a
           href="/admin/lenders?status=approved"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'approved' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'approved' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Approved
         </a>
         <a
           href="/admin/lenders?status=rejected"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'rejected' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'rejected' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Rejected
         </a>
@@ -83,7 +83,7 @@ const statusColors: Record<LenderStatus, string> = {
     </div>
 
     <!-- Lenders List -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       {lenders && lenders.length > 0 ? (
         <div class="divide-y divide-light">
           {lenders.map((lender) => (

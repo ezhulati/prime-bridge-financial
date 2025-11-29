@@ -50,10 +50,10 @@ const redirect = Astro.url.searchParams.get('redirect');
       <!-- Right: Login Form -->
       <div class="flex items-center justify-center p-6 sm:p-12">
         <div class="w-full max-w-md">
-          <div class="bg-white rounded-xl border border-light p-8 shadow-sm">
+          <div class="bg-white rounded-2xl border border-light p-8 lg:p-10 shadow-sm">
             <div class="text-center mb-8">
               <h2 class="text-2xl font-bold text-darkest">Log in to your account</h2>
-              <p class="text-dark mt-2">Enter your credentials to continue</p>
+              <p class="text-dark mt-3">Enter your credentials to continue</p>
             </div>
 
             <LoginForm client:load />

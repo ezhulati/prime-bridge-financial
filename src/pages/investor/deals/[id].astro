@@ -87,7 +87,7 @@ const statusColors: Record<DealStatus, string> = {
     </div>
 
     <!-- Key Metrics Bar -->
-    <div class="bg-white rounded-xl border border-light p-6">
+    <div class="bg-white rounded-2xl border border-light p-6">
       <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
         <div class="text-center">
           <p class="text-3xl font-bold text-primary">{deal.target_yield}%</p>
@@ -113,7 +113,7 @@ const statusColors: Record<DealStatus, string> = {
     </div>
 
     <!-- Funding Progress -->
-    <div class="bg-white rounded-xl border border-light p-6">
+    <div class="bg-white rounded-2xl border border-light p-6">
       <h2 class="text-lg font-bold text-darkest mb-4">Funding Progress</h2>
       <div class="flex justify-between text-sm text-dark mb-2">
         <span>{formatCurrency(deal.amount_committed)} committed</span>
@@ -135,7 +135,7 @@ const statusColors: Record<DealStatus, string> = {
       <!-- Main Content -->
       <div class="lg:col-span-2 space-y-6">
         {/* Description */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h2 class="text-lg font-bold text-darkest mb-4">Deal Overview</h2>
           <p class="text-dark whitespace-pre-wrap">{deal.description || 'No description provided.'}</p>
         </div>
@@ -192,7 +192,7 @@ const statusColors: Record<DealStatus, string> = {
         </div>
 
         {/* Originator Info */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h2 class="text-lg font-bold text-darkest mb-6">Originator Profile</h2>
           <div class="flex items-start gap-4 mb-6">
             <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -257,7 +257,7 @@ const statusColors: Record<DealStatus, string> = {
       <!-- Sidebar -->
       <div class="space-y-6">
         {/* Commitment Box */}
-        <div class="bg-white rounded-xl border border-light p-6 sticky top-6">
+        <div class="bg-white rounded-2xl border border-light p-6 sticky top-6">
           {existingCommitment ? (
             <div class="text-center">
               <div class="w-16 h-16 rounded-full bg-success/10 mx-auto mb-4 flex items-center justify-center">
@@ -270,7 +270,7 @@ const statusColors: Record<DealStatus, string> = {
               <p class="text-dark text-sm mb-4">Status: <span class="font-medium capitalize">{existingCommitment.status}</span></p>
               <a
                 href="/investor/portfolio"
-                class="inline-flex items-center justify-center w-full border-2 border-primary text-primary hover:bg-primary/5 min-h-[48px] px-6 rounded-md font-semibold no-underline"
+                class="inline-flex items-center justify-center w-full border-2 border-primary text-primary hover:bg-primary/5 min-h-[48px] px-6 rounded-lg font-semibold no-underline"
               >
                 View in Portfolio
               </a>
@@ -361,14 +361,14 @@ const statusColors: Record<DealStatus, string> = {
         )}
 
         {/* Help */}
-        <div class="bg-lightest rounded-xl border border-light p-6">
+        <div class="bg-lightest rounded-2xl border border-light p-6">
           <h3 class="font-bold text-darkest mb-2">Questions?</h3>
           <p class="text-dark text-sm mb-4">
             Our investor relations team can provide additional loan tape data and answer your questions.
           </p>
           <a
             href="mailto:investors@primebridge.com"
-            class="inline-flex items-center justify-center w-full border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-4 rounded-md font-semibold no-underline text-sm"
+            class="inline-flex items-center justify-center w-full border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-4 rounded-lg font-semibold no-underline text-sm"
           >
             Contact Investor Relations
           </a>

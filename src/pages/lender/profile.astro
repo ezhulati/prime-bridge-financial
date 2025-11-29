@@ -1,0 +1,419 @@
+---
+import LenderLayout from '../../layouts/LenderLayout.astro';
+import { createSupabaseServerClient } from '../../lib/supabase';
+import { lenderStatusLabels, loanTypeLabels, riskTierLabels, getRiskTierColor } from '../../types/database';
+import type { LenderStatus, RiskTier, LoanType } from '../../types/database';
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get user's lender profile
+const { data: lender } = await supabase
+  .from('lenders')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+if (!lender) {
+  return Astro.redirect('/lender/dashboard');
+}
+
+const statusColors: Record<LenderStatus, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  under_review: 'bg-blue-100 text-blue-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
+  suspended: 'bg-gray-100 text-gray-700',
+};
+
+const allLoanTypes: { value: LoanType; label: string }[] = [
+  { value: 'consumer', label: 'Consumer Loans' },
+  { value: 'auto', label: 'Auto Loans' },
+  { value: 'bnpl', label: 'Buy Now Pay Later' },
+  { value: 'medical', label: 'Medical Financing' },
+  { value: 'sme', label: 'SME/Business Loans' },
+];
+
+const usStates = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
+];
+---
+
+<LenderLayout title="Company Profile">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/lender/dashboard" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to dashboard
+      </a>
+      <div class="flex items-center gap-3 mb-2">
+        <h1 class="text-2xl font-bold text-darkest">Company Profile</h1>
+        <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColors[lender.status as LenderStatus]}`}>
+          {lenderStatusLabels[lender.status as LenderStatus]}
+        </span>
+        {lender.risk_tier && (
+          <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getRiskTierColor(lender.risk_tier as RiskTier)}`}>
+            {riskTierLabels[lender.risk_tier as RiskTier]}
+          </span>
+        )}
+      </div>
+      <p class="text-dark">
+        Complete your company profile to expedite the approval process. The more information you provide, the faster we can verify your business.
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form action="/api/lender/profile" method="POST" class="space-y-8">
+      {/* Company Information */}
+      <div class="bg-white rounded-2xl border border-light p-6">
+        <h2 class="text-lg font-bold text-darkest mb-6">Company Information</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="company_name">
+              Company Name <span class="text-error">*</span>
+            </label>
+            <input
+              type="text"
+              id="company_name"
+              name="company_name"
+              value={lender.company_name}
+              required
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="legal_entity_name">
+              Legal Entity Name
+            </label>
+            <input
+              type="text"
+              id="legal_entity_name"
+              name="legal_entity_name"
+              value={lender.legal_entity_name}
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="ein">
+              EIN
+            </label>
+            <input
+              type="text"
+              id="ein"
+              name="ein"
+              value={lender.ein}
+              placeholder="XX-XXXXXXX"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="website">
+              Website
+            </label>
+            <input
+              type="url"
+              id="website"
+              name="website"
+              value={lender.website}
+              placeholder="https://example.com"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="year_founded">
+              Year Founded
+            </label>
+            <input
+              type="number"
+              id="year_founded"
+              name="year_founded"
+              value={lender.year_founded}
+              min="1900"
+              max={new Date().getFullYear()}
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="headquarters_state">
+              Headquarters State
+            </label>
+            <select
+              id="headquarters_state"
+              name="headquarters_state"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              <option value="">Select state</option>
+              {usStates.map(state => (
+                <option value={state} selected={lender.headquarters_state === state}>{state}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Primary Contact */}
+      <div class="bg-white rounded-2xl border border-light p-6">
+        <h2 class="text-lg font-bold text-darkest mb-6">Primary Contact</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="primary_contact_name">
+              Name <span class="text-error">*</span>
+            </label>
+            <input
+              type="text"
+              id="primary_contact_name"
+              name="primary_contact_name"
+              value={lender.primary_contact_name}
+              required
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="primary_contact_email">
+              Email <span class="text-error">*</span>
+            </label>
+            <input
+              type="email"
+              id="primary_contact_email"
+              name="primary_contact_email"
+              value={lender.primary_contact_email}
+              required
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="primary_contact_phone">
+              Phone
+            </label>
+            <input
+              type="tel"
+              id="primary_contact_phone"
+              name="primary_contact_phone"
+              value={lender.primary_contact_phone}
+              placeholder="(555) 123-4567"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Lending Profile */}
+      <div class="bg-white rounded-2xl border border-light p-6">
+        <h2 class="text-lg font-bold text-darkest mb-6">Lending Profile</h2>
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark">
+              Loan Types <span class="text-error">*</span>
+            </label>
+            <p class="text-sm text-medium mb-2">Select all loan types you originate</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {allLoanTypes.map(type => (
+                <label class="flex items-center gap-3 p-3 rounded-lg border border-light hover:bg-lightest cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="loan_types"
+                    value={type.value}
+                    checked={lender.loan_types?.includes(type.value)}
+                    class="w-5 h-5 rounded border-light text-primary focus:ring-primary/20"
+                  />
+                  <span class="text-darkest">{type.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-dark" for="avg_loan_size">
+                Average Loan Size ($)
+              </label>
+              <input
+                type="number"
+                id="avg_loan_size"
+                name="avg_loan_size"
+                value={lender.avg_loan_size}
+                min="0"
+                step="100"
+                class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-dark" for="monthly_origination_volume">
+                Monthly Volume ($)
+              </label>
+              <input
+                type="number"
+                id="monthly_origination_volume"
+                name="monthly_origination_volume"
+                value={lender.monthly_origination_volume}
+                min="0"
+                step="1000"
+                class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-dark" for="total_loans_originated">
+                Total Loans Originated
+              </label>
+              <input
+                type="number"
+                id="total_loans_originated"
+                name="total_loans_originated"
+                value={lender.total_loans_originated}
+                min="0"
+                class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-dark" for="weighted_avg_apr">
+                Weighted Avg APR (%)
+              </label>
+              <input
+                type="number"
+                id="weighted_avg_apr"
+                name="weighted_avg_apr"
+                value={lender.weighted_avg_apr}
+                min="0"
+                max="100"
+                step="0.01"
+                class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-dark" for="avg_loan_term_months">
+                Avg Loan Term (months)
+              </label>
+              <input
+                type="number"
+                id="avg_loan_term_months"
+                name="avg_loan_term_months"
+                value={lender.avg_loan_term_months}
+                min="1"
+                max="120"
+                class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Performance Metrics */}
+      <div class="bg-white rounded-2xl border border-light p-6">
+        <h2 class="text-lg font-bold text-darkest mb-6">Historical Performance</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="historical_default_rate">
+              Default Rate (%)
+            </label>
+            <input
+              type="number"
+              id="historical_default_rate"
+              name="historical_default_rate"
+              value={lender.historical_default_rate ? (lender.historical_default_rate * 100).toFixed(2) : ''}
+              min="0"
+              max="100"
+              step="0.01"
+              placeholder="e.g., 4.5"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="historical_loss_rate">
+              Loss Rate (%)
+            </label>
+            <input
+              type="number"
+              id="historical_loss_rate"
+              name="historical_loss_rate"
+              value={lender.historical_loss_rate ? (lender.historical_loss_rate * 100).toFixed(2) : ''}
+              min="0"
+              max="100"
+              step="0.01"
+              placeholder="e.g., 2.5"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="avg_fico_score">
+              Avg Borrower FICO
+            </label>
+            <input
+              type="number"
+              id="avg_fico_score"
+              name="avg_fico_score"
+              value={lender.avg_fico_score}
+              min="300"
+              max="850"
+              placeholder="e.g., 680"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Bank Partnership */}
+      <div class="bg-white rounded-2xl border border-light p-6">
+        <h2 class="text-lg font-bold text-darkest mb-6">Bank Partnership</h2>
+        <p class="text-dark text-sm mb-6">
+          If you use a bank partner for loan origination (rent-a-charter model), provide their information below.
+        </p>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="bank_partner_name">
+              Bank Partner Name
+            </label>
+            <input
+              type="text"
+              id="bank_partner_name"
+              name="bank_partner_name"
+              value={lender.bank_partner_name}
+              placeholder="e.g., Cross River Bank"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-dark" for="bank_partner_state">
+              Bank Charter State
+            </label>
+            <select
+              id="bank_partner_state"
+              name="bank_partner_state"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              <option value="">Select state</option>
+              {usStates.map(state => (
+                <option value={state} selected={lender.bank_partner_state === state}>{state}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Submit */}
+      <div class="flex justify-end gap-4">
+        <a
+          href="/lender/dashboard"
+          class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[48px] px-6 rounded-lg font-medium no-underline"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-8 rounded-lg font-semibold transition-colors"
+        >
+          Save Profile
+        </button>
+      </div>
+    </form>
+  </div>
+</LenderLayout>

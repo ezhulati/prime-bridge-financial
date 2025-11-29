@@ -48,13 +48,13 @@ const statusColors: Record<string, string> = {
 <LenderLayout title="Dashboard">
   <div class="space-y-8">
     <!-- Welcome Section -->
-    <div class="bg-white rounded-xl border border-light p-8">
+    <div class="bg-white rounded-2xl border border-light p-8">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-darkest mb-2">
+          <h1 class="text-2xl font-bold text-darkest mb-3">
             Welcome back{lender?.company_name ? `, ${lender.company_name}` : ''}!
           </h1>
-          <p class="text-dark">
+          <p class="text-dark text-base">
             {lender?.status === 'approved'
               ? 'Manage your loan pools and track investor interest.'
               : lender?.status === 'pending' || lender?.status === 'under_review'
@@ -66,7 +66,7 @@ const statusColors: Record<string, string> = {
         {lender?.status === 'approved' && (
           <a
             href="/lender/pools/new"
-            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline whitespace-nowrap"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline whitespace-nowrap"
           >
             Submit new pool
           </a>
@@ -98,7 +98,7 @@ const statusColors: Record<string, string> = {
 
     <!-- Quick Stats -->
     <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+      <div class="bg-white rounded-2xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,7 +113,7 @@ const statusColors: Record<string, string> = {
       </div>
       <div class="bg-white rounded-xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-info/10 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-lg bg-info/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
@@ -124,7 +124,7 @@ const statusColors: Record<string, string> = {
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+      <div class="bg-white rounded-2xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +140,7 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Recent Loan Pools -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       <div class="p-6 border-b border-light flex items-center justify-between">
         <h2 class="text-lg font-bold text-darkest">Recent Loan Pools</h2>
         <a href="/lender/pools" class="text-sm text-primary font-medium hover:underline">
@@ -174,7 +174,7 @@ const statusColors: Record<string, string> = {
                 <div class="flex gap-3 flex-shrink-0">
                   <a
                     href={`/lender/pools/${pool.id}`}
-                    class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[40px] px-4 rounded-md font-medium no-underline text-sm"
+                    class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[40px] px-4 rounded-lg font-medium no-underline text-sm"
                   >
                     View details
                   </a>
@@ -200,14 +200,14 @@ const statusColors: Record<string, string> = {
           {lender?.status === 'approved' ? (
             <a
               href="/lender/pools/new"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
             >
               Submit loan pool
             </a>
           ) : (
             <a
               href="/lender/profile"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
             >
               Complete profile
             </a>
@@ -217,7 +217,7 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Help Section -->
-    <div class="bg-lightest rounded-xl border border-light p-6">
+    <div class="bg-lightest rounded-2xl border border-light p-6">
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
           <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -230,7 +230,7 @@ const statusColors: Record<string, string> = {
         </div>
         <a
           href="mailto:lenders@primebridge.com"
-          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline text-sm whitespace-nowrap"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-lg font-semibold no-underline text-sm whitespace-nowrap"
         >
           Contact support
         </a>

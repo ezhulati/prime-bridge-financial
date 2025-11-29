@@ -94,7 +94,7 @@ const statusColors: Record<string, string> = {
       </div>
       <a
         href="/admin/deals/new"
-        class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline whitespace-nowrap transition-colors"
+        class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline whitespace-nowrap transition-colors"
       >
         <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -106,7 +106,7 @@ const statusColors: Record<string, string> = {
     <!-- Stats Overview -->
     <div class="grid md:grid-cols-4 gap-6">
       <!-- Lenders Card -->
-      <a href="/admin/lenders" class="group bg-white rounded-xl border border-light p-6 card-hover no-underline">
+      <a href="/admin/lenders" class="group bg-white rounded-2xl border border-light p-6 card-hover no-underline">
         <div class="flex items-center justify-between mb-4">
           <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -154,7 +154,7 @@ const statusColors: Record<string, string> = {
       </a>
 
       <!-- Investors Card -->
-      <a href="/admin/investors" class="group bg-white rounded-xl border border-light p-6 card-hover no-underline">
+      <a href="/admin/investors" class="group bg-white rounded-2xl border border-light p-6 card-hover no-underline">
         <div class="flex items-center justify-between mb-4">
           <div class="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -201,7 +201,7 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Loan Pools for Review -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       <div class="p-6 border-b border-light flex items-center justify-between">
         <h2 class="text-lg font-bold text-darkest">Loan pools awaiting review</h2>
         <a href="/admin/pools?status=submitted" class="text-primary font-medium text-sm hover:underline">
@@ -230,7 +230,7 @@ const statusColors: Record<string, string> = {
                     <p class="font-semibold text-darkest">{pool.weighted_avg_apr}%</p>
                     <p class="text-xs text-dark">Avg APR</p>
                   </div>
-                  <span class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] px-4 rounded-md font-medium text-sm transition-colors flex-shrink-0">
+                  <span class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] px-4 rounded-lg font-medium text-sm transition-colors flex-shrink-0">
                     Review
                   </span>
                 </div>
@@ -254,7 +254,7 @@ const statusColors: Record<string, string> = {
     <!-- Two Column Layout -->
     <div class="grid lg:grid-cols-2 gap-6">
       <!-- Pending Lenders -->
-      <div class="bg-white rounded-xl border border-light overflow-hidden">
+      <div class="bg-white rounded-2xl border border-light overflow-hidden">
         <div class="p-6 border-b border-light flex items-center justify-between">
           <h2 class="text-lg font-bold text-darkest">Pending lender approvals</h2>
           <a href="/admin/lenders?status=pending" class="text-primary font-medium text-sm hover:underline">
@@ -273,7 +273,7 @@ const statusColors: Record<string, string> = {
                   </div>
                   <a
                     href={`/admin/lenders/${lender.id}`}
-                    class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] px-4 rounded-md font-medium no-underline text-sm transition-colors flex-shrink-0"
+                    class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] px-4 rounded-lg font-medium no-underline text-sm transition-colors flex-shrink-0"
                   >
                     Review
                   </a>
@@ -314,7 +314,7 @@ const statusColors: Record<string, string> = {
                   </div>
                   <a
                     href={`/admin/investors/${investor.id}`}
-                    class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] px-4 rounded-md font-medium no-underline text-sm transition-colors flex-shrink-0"
+                    class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] px-4 rounded-lg font-medium no-underline text-sm transition-colors flex-shrink-0"
                   >
                     Review
                   </a>
@@ -337,12 +337,12 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Quick Actions -->
-    <div class="bg-lightest rounded-xl border border-light p-6">
+    <div class="bg-lightest rounded-2xl border border-light p-6">
       <h3 class="text-lg font-bold text-darkest mb-4">Quick actions</h3>
       <div class="flex flex-wrap gap-3">
         <a
           href="/admin/pools?status=submitted"
-          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-md font-semibold no-underline text-sm transition-colors"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-lg font-semibold no-underline text-sm transition-colors"
         >
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -351,7 +351,7 @@ const statusColors: Record<string, string> = {
         </a>
         <a
           href="/admin/lenders?status=pending"
-          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-md font-semibold no-underline text-sm transition-colors"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-lg font-semibold no-underline text-sm transition-colors"
         >
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -360,7 +360,7 @@ const statusColors: Record<string, string> = {
         </a>
         <a
           href="/admin/investors?approved=false"
-          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-md font-semibold no-underline text-sm transition-colors"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-lg font-semibold no-underline text-sm transition-colors"
         >
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -369,7 +369,7 @@ const statusColors: Record<string, string> = {
         </a>
         <a
           href="/admin/deals"
-          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-md font-semibold no-underline text-sm transition-colors"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-5 rounded-lg font-semibold no-underline text-sm transition-colors"
         >
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />

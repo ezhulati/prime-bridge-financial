@@ -49,13 +49,13 @@ const statusColors: Record<string, string> = {
 <InvestorLayout title="Investor Dashboard">
   <div class="space-y-8">
     <!-- Welcome Section -->
-    <div class="bg-white rounded-xl border border-light p-8">
+    <div class="bg-white rounded-2xl border border-light p-8">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-darkest mb-2">
+          <h1 class="text-2xl font-bold text-darkest mb-3">
             Welcome back, {user.name || 'Investor'}!
           </h1>
-          <p class="text-dark">
+          <p class="text-dark text-base">
             {investor?.approved
               ? 'Browse loan pool deals and manage your portfolio.'
               : 'Your account is pending accreditation verification.'
@@ -65,7 +65,7 @@ const statusColors: Record<string, string> = {
         {investor?.approved && (
           <a
             href="/investor/deals"
-            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline whitespace-nowrap"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline whitespace-nowrap"
           >
             Browse deals
           </a>
@@ -97,7 +97,7 @@ const statusColors: Record<string, string> = {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-4 gap-6">
-      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+      <div class="bg-white rounded-2xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,7 +112,7 @@ const statusColors: Record<string, string> = {
       </div>
       <div class="bg-white rounded-xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-info/10 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-lg bg-info/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
@@ -123,7 +123,7 @@ const statusColors: Record<string, string> = {
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+      <div class="bg-white rounded-2xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -138,7 +138,7 @@ const statusColors: Record<string, string> = {
       </div>
       <div class="bg-white rounded-xl border border-light p-6 card-hover">
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
             <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
@@ -153,7 +153,7 @@ const statusColors: Record<string, string> = {
 
     <!-- Available Deals Preview -->
     {investor?.approved && (
-      <div class="bg-white rounded-xl border border-light overflow-hidden">
+      <div class="bg-white rounded-2xl border border-light overflow-hidden">
         <div class="p-6 border-b border-light flex items-center justify-between">
           <h2 class="text-lg font-bold text-darkest">Featured Deals</h2>
           <a href="/investor/deals" class="text-primary font-medium text-sm hover:underline">
@@ -190,7 +190,7 @@ const statusColors: Record<string, string> = {
                     </div>
                     <a
                       href={`/investor/deals/${deal.id}`}
-                      class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-4 rounded-md font-medium no-underline text-sm"
+                      class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[40px] px-4 rounded-lg font-medium no-underline text-sm"
                     >
                       View deal
                     </a>
@@ -229,7 +229,7 @@ const statusColors: Record<string, string> = {
     )}
 
     <!-- Recent Commitments -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       <div class="p-6 border-b border-light flex items-center justify-between">
         <h2 class="text-lg font-bold text-darkest">Your Commitments</h2>
         {commitments && commitments.length > 0 && (
@@ -275,14 +275,14 @@ const statusColors: Record<string, string> = {
           {investor?.approved ? (
             <a
               href="/investor/deals"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
             >
               Browse deals
             </a>
           ) : (
             <a
               href="/investor/profile"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
             >
               Complete profile
             </a>
@@ -292,7 +292,7 @@ const statusColors: Record<string, string> = {
     </div>
 
     <!-- Help Section -->
-    <div class="bg-lightest rounded-xl border border-light p-6">
+    <div class="bg-lightest rounded-2xl border border-light p-6">
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
           <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -305,7 +305,7 @@ const statusColors: Record<string, string> = {
         </div>
         <a
           href="mailto:investors@primebridge.com"
-          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline text-sm whitespace-nowrap"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-lg font-semibold no-underline text-sm whitespace-nowrap"
         >
           Contact investor relations
         </a>

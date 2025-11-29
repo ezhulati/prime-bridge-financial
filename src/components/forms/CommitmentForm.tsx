@@ -148,8 +148,8 @@ export function CommitmentForm({
           ))}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? 'Submitting...' : 'Submit Commitment'}
+      <Button type="submit" className="w-full" loading={isSubmitting}>
+        Submit Commitment
       </Button>
 
       <p className="text-xs text-medium text-center">

@@ -70,7 +70,7 @@ const statusColors: Record<CommitmentStatus, string> = {
             <form action={`/api/admin/investors/${id}/approve`} method="POST">
               <button
                 type="submit"
-                class="inline-flex items-center justify-center bg-success text-white hover:bg-success/90 min-h-[48px] px-6 rounded-md font-semibold transition-colors"
+                class="inline-flex items-center justify-center bg-success text-white hover:bg-success/90 min-h-[48px] px-6 rounded-lg font-semibold transition-colors"
               >
                 Approve Investor
               </button>
@@ -80,7 +80,7 @@ const statusColors: Record<CommitmentStatus, string> = {
             <form action={`/api/admin/investors/${id}/revoke`} method="POST">
               <button
                 type="submit"
-                class="inline-flex items-center justify-center bg-error text-white hover:bg-error/90 min-h-[48px] px-6 rounded-md font-semibold transition-colors"
+                class="inline-flex items-center justify-center bg-error text-white hover:bg-error/90 min-h-[48px] px-6 rounded-lg font-semibold transition-colors"
               >
                 Revoke Approval
               </button>
@@ -92,19 +92,19 @@ const statusColors: Record<CommitmentStatus, string> = {
 
     <!-- Stats -->
     <div class="grid md:grid-cols-4 gap-6">
-      <div class="bg-white rounded-xl border border-light p-6">
+      <div class="bg-white rounded-2xl border border-light p-6">
         <p class="text-sm font-medium text-dark mb-1">Total Invested</p>
         <p class="text-2xl font-bold text-darkest">{formatCurrency(investor.total_invested)}</p>
       </div>
-      <div class="bg-white rounded-xl border border-light p-6">
+      <div class="bg-white rounded-2xl border border-light p-6">
         <p class="text-sm font-medium text-dark mb-1">Total Deals</p>
         <p class="text-2xl font-bold text-darkest">{investor.total_deals}</p>
       </div>
-      <div class="bg-white rounded-xl border border-light p-6">
+      <div class="bg-white rounded-2xl border border-light p-6">
         <p class="text-sm font-medium text-dark mb-1">Accreditation</p>
         <p class="text-2xl font-bold text-darkest capitalize">{investor.accreditation_status}</p>
       </div>
-      <div class="bg-white rounded-xl border border-light p-6">
+      <div class="bg-white rounded-2xl border border-light p-6">
         <p class="text-sm font-medium text-dark mb-1">KYC Status</p>
         <p class="text-2xl font-bold text-darkest capitalize">{investor.kyc_status || 'Pending'}</p>
       </div>
@@ -114,7 +114,7 @@ const statusColors: Record<CommitmentStatus, string> = {
       <!-- Main Info -->
       <div class="lg:col-span-2 space-y-6">
         {/* Investment Criteria */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h2 class="text-lg font-bold text-darkest mb-6">Investment Preferences</h2>
           <div class="grid sm:grid-cols-2 gap-6">
             <div>
@@ -155,7 +155,7 @@ const statusColors: Record<CommitmentStatus, string> = {
         </div>
 
         {/* Accreditation */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h2 class="text-lg font-bold text-darkest mb-6">Accreditation Details</h2>
           <div class="grid sm:grid-cols-2 gap-6">
             <div>
@@ -198,7 +198,7 @@ const statusColors: Record<CommitmentStatus, string> = {
         </div>
 
         {/* Commitments */}
-        <div class="bg-white rounded-xl border border-light overflow-hidden">
+        <div class="bg-white rounded-2xl border border-light overflow-hidden">
           <div class="p-6 border-b border-light">
             <h2 class="text-lg font-bold text-darkest">Commitments ({commitments?.length || 0})</h2>
           </div>
@@ -237,18 +237,18 @@ const statusColors: Record<CommitmentStatus, string> = {
       <!-- Sidebar -->
       <div class="space-y-6">
         {/* Admin Notes */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h3 class="font-bold text-darkest mb-4">Admin Notes</h3>
           <form action={`/api/admin/investors/${id}/notes`} method="POST">
             <textarea
               name="admin_notes"
               rows="4"
-              class="w-full px-4 py-3 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+              class="w-full px-4 py-3 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
               placeholder="Add notes about this investor..."
             >{investor.admin_notes}</textarea>
             <button
               type="submit"
-              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-md font-semibold transition-colors"
+              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-lg font-semibold transition-colors"
             >
               Save Notes
             </button>
@@ -256,12 +256,12 @@ const statusColors: Record<CommitmentStatus, string> = {
         </div>
 
         {/* KYC Status */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h3 class="font-bold text-darkest mb-4">KYC Status</h3>
           <form action={`/api/admin/investors/${id}/kyc`} method="POST">
             <select
               name="kyc_status"
-              class="w-full min-h-[44px] px-4 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
               <option value="pending" selected={investor.kyc_status === 'pending'}>Pending</option>
               <option value="passed" selected={investor.kyc_status === 'passed'}>Passed</option>
@@ -270,7 +270,7 @@ const statusColors: Record<CommitmentStatus, string> = {
             </select>
             <button
               type="submit"
-              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-md font-semibold transition-colors"
+              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-lg font-semibold transition-colors"
             >
               Update KYC
             </button>
@@ -278,7 +278,7 @@ const statusColors: Record<CommitmentStatus, string> = {
         </div>
 
         {/* Timeline */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h3 class="font-bold text-darkest mb-4">Timeline</h3>
           <div class="space-y-4">
             <div class="flex gap-3">

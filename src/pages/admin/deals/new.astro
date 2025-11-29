@@ -68,7 +68,7 @@ const eligiblePools = availablePools?.filter(pool => !poolsWithDeals.has(pool.id
     </div>
 
     {eligiblePools.length === 0 && !selectedPool ? (
-      <div class="bg-white rounded-xl border border-light p-12 text-center">
+      <div class="bg-white rounded-2xl border border-light p-12 text-center">
         <div class="w-16 h-16 rounded-full bg-amber-50 mx-auto mb-4 flex items-center justify-center">
           <svg class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -80,7 +80,7 @@ const eligiblePools = availablePools?.filter(pool => !poolsWithDeals.has(pool.id
         </p>
         <a
           href="/admin/pools?status=submitted"
-          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
         >
           Review Pending Pools
         </a>
@@ -89,7 +89,7 @@ const eligiblePools = availablePools?.filter(pool => !poolsWithDeals.has(pool.id
       <>
         {/* Pool Selection (if not pre-selected) */}
         {!selectedPool && (
-          <div class="bg-white rounded-xl border border-light p-6">
+          <div class="bg-white rounded-2xl border border-light p-6">
             <h2 class="text-lg font-bold text-darkest mb-4">Select Loan Pool</h2>
             <div class="space-y-4">
               {eligiblePools.map((pool) => (
@@ -124,7 +124,7 @@ const eligiblePools = availablePools?.filter(pool => !poolsWithDeals.has(pool.id
 
         {/* Selected Pool Summary */}
         {selectedPool && (
-          <div class="bg-primary/5 rounded-xl border border-primary/20 p-6">
+          <div class="bg-primary/5 rounded-2xl border border-primary/20 p-6">
             <div class="flex items-center justify-between gap-4">
               <div>
                 <p class="text-sm font-medium text-primary mb-1">Selected Pool</p>

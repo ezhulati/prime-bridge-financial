@@ -256,8 +256,8 @@ export function LoanPoolForm({ lenderId }: LoanPoolFormProps) {
         >
           Cancel
         </a>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating...' : 'Create Pool'}
+        <Button type="submit" loading={isSubmitting}>
+          Create Pool
         </Button>
       </div>
     </form>

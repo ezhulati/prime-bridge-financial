@@ -59,7 +59,7 @@ const statusLabels: Record<LoanPoolStatus, string> = {
       {lender.status === 'approved' && (
         <a
           href="/lender/pools/new"
-          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline whitespace-nowrap"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline whitespace-nowrap"
         >
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -70,7 +70,7 @@ const statusLabels: Record<LoanPoolStatus, string> = {
     </div>
 
     <!-- Pools List -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       {pools && pools.length > 0 ? (
         <div class="divide-y divide-light">
           {pools.map((pool) => (
@@ -139,7 +139,7 @@ const statusLabels: Record<LoanPoolStatus, string> = {
           {lender.status === 'approved' && (
             <a
               href="/lender/pools/new"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
             >
               Submit first pool
             </a>

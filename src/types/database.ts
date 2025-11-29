@@ -40,6 +40,14 @@ export type DocumentType =
 
 export type LoanStatus = 'current' | 'delinquent_30' | 'delinquent_60' | 'delinquent_90' | 'default' | 'charged_off' | 'paid_off';
 
+export type PaymentMethodStatus = 'pending' | 'verified' | 'failed' | 'removed';
+
+export type TransactionStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded' | 'canceled';
+
+export type TransactionType = 'deposit' | 'withdrawal' | 'investment' | 'return' | 'interest' | 'fee' | 'refund';
+
+export type BankHoldStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | 'waived';
+
 // ============================================
 // USER
 // ============================================
@@ -380,6 +388,136 @@ export interface ActivityLog {
   details: Record<string, unknown> | null;
   ip_address: string | null;
   created_at: string;
+}
+
+// ============================================
+// PAYMENT METHOD
+// ============================================
+
+export interface PaymentMethod {
+  id: string;
+  user_id: string;
+
+  // Stripe IDs
+  stripe_customer_id: string | null;
+  stripe_payment_method_id: string | null;
+  stripe_bank_account_id: string | null;
+
+  // Bank Account Details (masked)
+  bank_name: string | null;
+  account_type: string | null;
+  last_four: string | null;
+  routing_last_four: string | null;
+
+  // Verification
+  status: PaymentMethodStatus;
+  verified_at: string | null;
+  verification_method: string | null;
+
+  // Flags
+  is_default: boolean;
+
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================
+// TRANSACTION
+// ============================================
+
+export interface Transaction {
+  id: string;
+  user_id: string;
+
+  // Type & Status
+  type: TransactionType;
+  status: TransactionStatus;
+
+  // Amount
+  amount: number;
+  fee_amount: number;
+  net_amount: number;
+
+  // Stripe
+  stripe_payment_intent_id: string | null;
+  stripe_transfer_id: string | null;
+  stripe_payout_id: string | null;
+
+  // References
+  payment_method_id: string | null;
+  deal_id: string | null;
+  commitment_id: string | null;
+
+  // Description
+  description: string | null;
+
+  // Processing
+  processed_at: string | null;
+  failed_reason: string | null;
+
+  // Metadata
+  metadata: Record<string, unknown>;
+
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================
+// WALLET
+// ============================================
+
+export interface Wallet {
+  id: string;
+  user_id: string;
+
+  // Balances
+  available_balance: number;
+  pending_balance: number;
+
+  // Stripe Connect
+  stripe_connect_account_id: string | null;
+  stripe_connect_status: string | null;
+
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================
+// BANK HOLD
+// ============================================
+
+export interface BankHold {
+  id: string;
+  loan_pool_id: string;
+
+  // Bank Details
+  bank_name: string;
+  bank_state: string | null;
+
+  // Hold Period
+  hold_start_date: string;
+  hold_end_date: string;
+  hold_days: number;
+
+  // Status
+  status: BankHoldStatus;
+  completed_at: string | null;
+
+  // Documentation
+  purchase_agreement_url: string | null;
+  bank_certification_url: string | null;
+  hold_confirmation_number: string | null;
+
+  // Review
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_notes: string | null;
+
+  // Metadata
+  metadata: Record<string, unknown>;
+
+  created_at: string;
+  updated_at: string;
 }
 
 // ============================================

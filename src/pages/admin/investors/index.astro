@@ -41,23 +41,23 @@ const { data: investors } = await query;
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-light p-4">
+    <div class="bg-white rounded-2xl border border-light p-4">
       <div class="flex flex-wrap gap-2">
         <a
           href="/admin/investors"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${!approvedFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${!approvedFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           All
         </a>
         <a
           href="/admin/investors?approved=false"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${approvedFilter === 'false' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${approvedFilter === 'false' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Pending Approval
         </a>
         <a
           href="/admin/investors?approved=true"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${approvedFilter === 'true' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${approvedFilter === 'true' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Approved
         </a>
@@ -65,7 +65,7 @@ const { data: investors } = await query;
     </div>
 
     <!-- Investors List -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       {investors && investors.length > 0 ? (
         <div class="divide-y divide-light">
           {investors.map((investor) => (

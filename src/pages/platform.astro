@@ -1,0 +1,725 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { getAuthUser } from '../lib/auth';
+
+const authUser = await getAuthUser(Astro.cookies);
+---
+
+<BaseLayout
+  title="The Infrastructure Layer for Private Credit | PrimeBridge Finance"
+  description="We standardize the workflow — not the credit product — so fintech lenders and investors can transact faster with full transparency."
+  image="/PrimeBridge_Finance.jpg"
+>
+  <Header user={authUser?.user} />
+
+  <main>
+    <!-- Hero -->
+    <section class="py-20 lg:py-28 bg-gradient-to-br from-darkest to-[#2a4a7a] text-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <p class="text-primary-light font-medium mb-4 text-sm tracking-wide uppercase">
+            The PrimeBridge Platform
+          </p>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6" style="line-height: 1.1;">
+            The Infrastructure Layer for Private Credit
+          </h1>
+          <p class="text-xl sm:text-2xl text-gray-300 mb-10 max-w-2xl" style="line-height: 1.5;">
+            We standardize the workflow — not the credit product — so fintech lenders and investors can transact faster with full transparency.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <a
+              href="/lender/register"
+              class="inline-flex items-center justify-center bg-white text-darkest hover:bg-gray-100 min-h-[52px] px-8 rounded-lg font-semibold text-lg no-underline transition-colors"
+            >
+              Request Platform Access
+            </a>
+            <a
+              href="#core-modules"
+              class="inline-flex items-center gap-2 text-white font-medium no-underline text-base hover:text-white/80 transition-colors min-h-[52px] px-4"
+            >
+              <span class="underline underline-offset-4 decoration-1">See product screens</span>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- What PrimeBridge Actually Does -->
+    <section class="py-20 bg-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-6" style="line-height: 1.15;">
+              What PrimeBridge Actually Does
+            </h2>
+            <p class="text-xl text-dark mb-8 max-w-prose" style="line-height: 1.5;">
+              Private credit isn't slow because deals are complex — it's slow because <strong class="text-darkest">the workflow is broken</strong>.
+            </p>
+            <p class="text-lg text-dark mb-6" style="line-height: 1.5;">
+              PrimeBridge fixes the workflow by standardizing:
+            </p>
+            <ul class="space-y-3 mb-8">
+              <li class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-darkest font-medium">Loan tape ingestion</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-darkest font-medium">Automated validation</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-darkest font-medium">Investor-grade analytics</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-darkest font-medium">Deal room packaging</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-darkest font-medium">Soft-commit matching</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-darkest font-medium">Allocation and settlement workflows</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="bg-light rounded-2xl p-8 lg:p-10">
+            <h3 class="text-xl font-bold text-darkest mb-6">All while lenders keep:</h3>
+            <ul class="space-y-4">
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span class="text-darkest">Their underwriting</span>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span class="text-darkest">Their covenants</span>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span class="text-darkest">Their triggers</span>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span class="text-darkest">Their structures</span>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span class="text-darkest">Their enhancements</span>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span class="text-darkest">Their servicing</span>
+              </li>
+            </ul>
+            <div class="mt-8 pt-6 border-t border-darkest/10">
+              <p class="text-lg text-darkest font-semibold">
+                This is <span class="text-primary">infrastructure</span>, not a marketplace.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Modules -->
+    <section id="core-modules" class="py-20 bg-light">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-4" style="line-height: 1.15;">
+            The Core Modules
+          </h2>
+          <p class="text-xl text-dark">The simplest breakdown of the system</p>
+        </div>
+
+        <div class="space-y-8">
+          <!-- Module 1: Tape Ingestion -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-start gap-6">
+              <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">1</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold text-darkest mb-2">Tape Ingestion Engine</h3>
+                <p class="text-lg text-primary font-medium mb-6">Clean, structured, normalized loan data in minutes</p>
+                <p class="text-dark mb-6">Upload your CSV or Excel file. PrimeBridge:</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Maps your fields to our schema</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Detects missing or inconsistent data</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Flags underwriting exceptions</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Normalizes APR, tenor, attributes</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Runs anomaly detection</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Generates investor-ready fields</span>
+                  </div>
+                </div>
+                <p class="text-darkest font-semibold">Outcome: A clean tape investors can trust.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Module 2: Risk + Performance Validation -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-start gap-6">
+              <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">2</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold text-darkest mb-2">Automated Risk + Performance Validation</h3>
+                <p class="text-lg text-primary font-medium mb-6">Instant analytics investors expect, without manual spreadsheets</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>FICO distribution</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>DTI ranges</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>APR buckets</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Delinquency curves</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Static pool analysis</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Expected loss modeling</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>State compliance checks</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Servicing performance history</span>
+                  </div>
+                </div>
+                <p class="text-darkest font-semibold">Outcome: Lenders save hours; investors get transparency.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Module 3: Deal Room Builder -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-start gap-6">
+              <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">3</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold text-darkest mb-2">Deal Room Builder</h3>
+                <p class="text-lg text-primary font-medium mb-6">Investor-grade pool packaging — automatically generated</p>
+                <p class="text-dark mb-6">Each pool gets a fully packaged deal room:</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Pool summary</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Tape-level data</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Credit policy snapshot</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Performance history</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Expected return model</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Legal + structural docs</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Underwriting notes</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Triggers and enhancements</span>
+                  </div>
+                </div>
+                <p class="text-darkest font-semibold">Outcome: Lenders present professionally. Investors evaluate faster.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Module 4: Soft Commit Engine -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-start gap-6">
+              <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">4</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold text-darkest mb-2">Soft Commit Engine</h3>
+                <p class="text-lg text-primary font-medium mb-6">Manage investor demand before finalizing structure</p>
+                <p class="text-dark mb-4">Investors can:</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Review pool</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Ask questions</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Request more data</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Submit soft commits</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Indicate tranche preference</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Set yield targets</span>
+                  </div>
+                </div>
+                <p class="text-dark mb-4">Lenders see demand before they finalize deal terms.</p>
+                <p class="text-darkest font-semibold">Outcome: Lenders avoid building structures no one wants.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Module 5: Allocation + Funding -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-start gap-6">
+              <div class="w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">5</div>
+              <div class="flex-1">
+                <h3 class="text-2xl font-bold text-darkest mb-2">Allocation + Funding Workflow</h3>
+                <p class="text-lg text-primary font-medium mb-6">Once a pool is ready, we streamline final execution</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Allocation balancing</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Investor selection</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Electronic agreements</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Capital call workflow</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Funding confirmations</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-dark">
+                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Distribution schedules</span>
+                  </div>
+                </div>
+                <p class="text-dark mb-4">PrimeBridge does <strong>not</strong> standardize structure — lenders choose it. We standardize the <strong>workflow to fund it</strong>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The PrimeBridge Advantage -->
+    <section class="py-20 bg-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-4" style="line-height: 1.15;">
+            Why This Works When "Marketplaces" Failed
+          </h2>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8 mb-12">
+          <!-- Failed Model -->
+          <div class="bg-red-50 rounded-2xl p-8 border border-red-200">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-darkest">Marketplace Model (Failed)</h3>
+            </div>
+            <p class="text-dark mb-6">Tries to standardize credit products → breaks everything. No two deals are the same. Ever.</p>
+          </div>
+
+          <!-- PrimeBridge Model -->
+          <div class="bg-green-50 rounded-2xl p-8 border border-green-200">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-darkest">PrimeBridge Model (Works)</h3>
+            </div>
+            <p class="text-dark mb-6">Standardizes the <strong>workflow</strong> → enables bespoke deals at scale.</p>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="bg-light rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-darkest/10">
+                  <th class="text-left p-4 lg:p-6 font-bold text-darkest">Layer</th>
+                  <th class="text-left p-4 lg:p-6 font-bold text-red-600">Marketplace</th>
+                  <th class="text-left p-4 lg:p-6 font-bold text-green-600">PrimeBridge</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-darkest/10">
+                  <td class="p-4 lg:p-6 font-medium text-darkest">Credit Product</td>
+                  <td class="p-4 lg:p-6 text-dark">One-size-fits-all</td>
+                  <td class="p-4 lg:p-6 text-dark font-medium">Fully bespoke</td>
+                </tr>
+                <tr class="border-b border-darkest/10">
+                  <td class="p-4 lg:p-6 font-medium text-darkest">Underwriting</td>
+                  <td class="p-4 lg:p-6 text-dark">Forced templates</td>
+                  <td class="p-4 lg:p-6 text-dark font-medium">Your models</td>
+                </tr>
+                <tr class="border-b border-darkest/10">
+                  <td class="p-4 lg:p-6 font-medium text-darkest">Covenants</td>
+                  <td class="p-4 lg:p-6 text-dark">Standardized</td>
+                  <td class="p-4 lg:p-6 text-dark font-medium">Your covenants</td>
+                </tr>
+                <tr class="border-b border-darkest/10">
+                  <td class="p-4 lg:p-6 font-medium text-darkest">Enhancements</td>
+                  <td class="p-4 lg:p-6 text-dark">Standardized</td>
+                  <td class="p-4 lg:p-6 text-dark font-medium">Your structures</td>
+                </tr>
+                <tr>
+                  <td class="p-4 lg:p-6 font-medium text-darkest">Workflow</td>
+                  <td class="p-4 lg:p-6 text-dark">Manual chaos</td>
+                  <td class="p-4 lg:p-6 text-dark font-medium">Automated and consistent</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="text-center mt-10">
+          <p class="text-xl text-darkest font-semibold">
+            PrimeBridge is the <span class="text-primary">highway</span>, not the car.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Who Uses PrimeBridge -->
+    <section class="py-20 bg-light">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-4" style="line-height: 1.15;">
+            Who Uses PrimeBridge
+          </h2>
+          <p class="text-xl text-dark">The platform works because both sides get what they care about</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+          <!-- Fintech Lenders -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-darkest">Fintech Lenders</h3>
+            </div>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Consumer lenders
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Auto lenders
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                BNPL providers
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Medical + dental finance
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Near-prime + subprime lenders
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                SMB lenders
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Niche asset finance
+              </li>
+            </ul>
+            <div class="mt-8 pt-6 border-t border-light">
+              <p class="text-darkest font-semibold">What they get: Speed + control</p>
+            </div>
+          </div>
+
+          <!-- Accredited Investors -->
+          <div class="bg-white rounded-2xl p-8 lg:p-10 shadow-sm">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-darkest">Accredited Investors</h3>
+            </div>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Family offices
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Wealth managers
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                RIAs
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                HNW investors
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                Private credit funds (for co-investment)
+              </li>
+              <li class="flex items-center gap-3 text-dark">
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+                SMA managers
+              </li>
+            </ul>
+            <div class="mt-8 pt-6 border-t border-light">
+              <p class="text-darkest font-semibold">What they get: Transparency + yield</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Compliance Architecture -->
+    <section class="py-20 bg-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-8" style="line-height: 1.15;">
+            Compliance Architecture
+          </h2>
+
+          <div class="bg-light rounded-2xl p-8 lg:p-10 mb-8">
+            <p class="text-lg text-dark mb-6">PrimeBridge is <strong class="text-darkest">not</strong>:</p>
+            <div class="flex flex-wrap justify-center gap-3">
+              <span class="px-4 py-2 bg-white rounded-lg text-dark border border-darkest/10">A lender</span>
+              <span class="px-4 py-2 bg-white rounded-lg text-dark border border-darkest/10">A fund</span>
+              <span class="px-4 py-2 bg-white rounded-lg text-dark border border-darkest/10">A marketplace</span>
+              <span class="px-4 py-2 bg-white rounded-lg text-dark border border-darkest/10">A broker-dealer</span>
+              <span class="px-4 py-2 bg-white rounded-lg text-dark border border-darkest/10">A securitizer</span>
+            </div>
+          </div>
+
+          <p class="text-xl text-darkest font-semibold mb-4">
+            PrimeBridge is a <span class="text-primary">workflow platform</span>.
+          </p>
+          <p class="text-lg text-dark">
+            You maintain underwriting, servicing, borrower relationships, and deal structure.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-20 bg-darkest text-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-xl text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
+          Private credit needs better infrastructure — not another marketplace.
+        </p>
+        <h2 class="text-3xl sm:text-4xl font-bold mb-10 max-w-3xl mx-auto" style="line-height: 1.15;">
+          PrimeBridge builds the workflow layer so lenders and investors can transact with clarity and speed.
+        </h2>
+        <a
+          href="/lender/register"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[56px] px-10 rounded-lg font-semibold text-lg no-underline transition-colors"
+        >
+          Request Platform Access
+        </a>
+        <p class="text-gray-400 mt-6 text-sm">
+          Approved lenders and investors receive onboarding within 24 hours.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

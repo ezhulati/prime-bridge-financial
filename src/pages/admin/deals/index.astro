@@ -49,7 +49,7 @@ const statusColors: Record<DealStatus, string> = {
       </div>
       <a
         href="/admin/deals/new"
-        class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline transition-colors"
+        class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline transition-colors"
       >
         <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -59,41 +59,41 @@ const statusColors: Record<DealStatus, string> = {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-light p-4">
+    <div class="bg-white rounded-2xl border border-light p-4">
       <div class="flex flex-wrap gap-2">
         <a
           href="/admin/deals"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${!statusFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${!statusFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           All
         </a>
         <a
           href="/admin/deals?status=draft"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'draft' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'draft' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Draft
         </a>
         <a
           href="/admin/deals?status=published"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'published' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'published' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Published
         </a>
         <a
           href="/admin/deals?status=fully_committed"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'fully_committed' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'fully_committed' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Fully Committed
         </a>
         <a
           href="/admin/deals?status=funded"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'funded' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'funded' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Funded
         </a>
         <a
           href="/admin/deals?status=performing"
-          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'performing' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+          class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium no-underline transition-colors ${statusFilter === 'performing' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
         >
           Performing
         </a>
@@ -101,7 +101,7 @@ const statusColors: Record<DealStatus, string> = {
     </div>
 
     <!-- Deals List -->
-    <div class="bg-white rounded-xl border border-light overflow-hidden">
+    <div class="bg-white rounded-2xl border border-light overflow-hidden">
       {deals && deals.length > 0 ? (
         <div class="divide-y divide-light">
           {deals.map((deal) => (
@@ -167,7 +167,7 @@ const statusColors: Record<DealStatus, string> = {
           </p>
           <a
             href="/admin/deals/new"
-            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold no-underline"
           >
             Create Deal
           </a>

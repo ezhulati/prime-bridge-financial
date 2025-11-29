@@ -92,8 +92,8 @@ export function LoginForm() {
         />
       </FormField>
 
-      <Button type="submit" fullWidth disabled={isLoading}>
-        {isLoading ? 'Logging in...' : 'Log in'}
+      <Button type="submit" fullWidth loading={isLoading}>
+        Log in
       </Button>
 
       <p className="text-center text-dark">

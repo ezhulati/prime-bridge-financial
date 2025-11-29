@@ -96,7 +96,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
           <form action={`/api/lender/pools/${id}/submit`} method="POST">
             <button
               type="submit"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold whitespace-nowrap"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold whitespace-nowrap"
             >
               Submit for review
             </button>
@@ -159,7 +159,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
       <!-- Main Info -->
       <div class="lg:col-span-2 space-y-6">
         {/* Pool Summary */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h2 class="text-lg font-bold text-darkest mb-6">Pool Summary</h2>
           <div class="grid sm:grid-cols-2 gap-6">
             <div>
@@ -222,7 +222,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
 
         {/* Bank Info */}
         {pool.originating_bank && (
-          <div class="bg-white rounded-xl border border-light p-6">
+          <div class="bg-white rounded-2xl border border-light p-6">
             <h2 class="text-lg font-bold text-darkest mb-6">Origination</h2>
             <div class="grid sm:grid-cols-2 gap-6">
               <div>
@@ -241,7 +241,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
 
         {/* Loan Tape Upload - Only for draft pools */}
         {canSubmit && (
-          <div class="bg-white rounded-xl border border-light p-6">
+          <div class="bg-white rounded-2xl border border-light p-6">
             <h2 class="text-lg font-bold text-darkest mb-2">Loan Tape Upload</h2>
             <p class="text-dark mb-6">
               Upload your loan tape (CSV or Excel) to import individual loan data. This helps us analyze your pool and provide better pricing.
@@ -252,7 +252,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
 
         {/* Imported Loans */}
         {(loanCount ?? 0) > 0 && (
-          <div class="bg-white rounded-xl border border-light overflow-hidden">
+          <div class="bg-white rounded-2xl border border-light overflow-hidden">
             <div class="p-6 border-b border-light">
               <div class="flex items-center justify-between">
                 <div>
@@ -315,7 +315,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
 
         {/* Admin Notes (if any) */}
         {pool.admin_notes && (
-          <div class="bg-amber-50 rounded-xl border border-amber-200 p-6">
+          <div class="bg-amber-50 rounded-2xl border border-amber-200 p-6">
             <h2 class="text-lg font-bold text-amber-800 mb-2">Admin Feedback</h2>
             <p class="text-amber-700">{pool.admin_notes}</p>
           </div>
@@ -325,7 +325,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
       <!-- Sidebar -->
       <div class="space-y-6">
         {/* Quick Stats */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h3 class="font-bold text-darkest mb-4">Quick Stats</h3>
           <div class="space-y-4">
             <div class="flex justify-between">
@@ -394,7 +394,7 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
         </div>
 
         {/* Timeline */}
-        <div class="bg-white rounded-xl border border-light p-6">
+        <div class="bg-white rounded-2xl border border-light p-6">
           <h3 class="font-bold text-darkest mb-4">Timeline</h3>
           <div class="space-y-4">
             <div class="flex gap-3">

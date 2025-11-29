@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { Button } from '../ui/Button';
 import { Alert, AlertDescription } from '../ui/Alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/Select';
+import { Input } from '../ui/Input';
 import { Label } from '../ui/Label';
 import type { LoanStatus } from '../../types/database';
 
@@ -26,34 +26,33 @@ interface LoanRow {
   days_delinquent?: number;
 }
 
-interface ColumnMapping {
-  [key: string]: string;
-}
-
 interface LoanTapeUploadProps {
   poolId: string;
   onUploadComplete?: (loanCount: number) => void;
 }
 
-// Standard field definitions for loan tape
-const LOAN_FIELDS = [
-  { key: 'loan_reference', label: 'Loan ID/Reference', required: true },
-  { key: 'borrower_state', label: 'Borrower State', required: false },
-  { key: 'borrower_zip', label: 'Borrower ZIP', required: false },
-  { key: 'original_principal', label: 'Original Principal', required: true },
-  { key: 'current_balance', label: 'Current Balance', required: true },
-  { key: 'interest_rate', label: 'Interest Rate (APR %)', required: true },
-  { key: 'term_months', label: 'Term (Months)', required: true },
-  { key: 'origination_date', label: 'Origination Date', required: true },
-  { key: 'maturity_date', label: 'Maturity Date', required: false },
-  { key: 'fico_score', label: 'FICO Score', required: false },
-  { key: 'dti_ratio', label: 'DTI Ratio (%)', required: false },
-  { key: 'monthly_payment', label: 'Monthly Payment', required: false },
-  { key: 'payments_made', label: 'Payments Made', required: false },
-  { key: 'payments_remaining', label: 'Payments Remaining', required: false },
-  { key: 'status', label: 'Loan Status', required: false },
-  { key: 'days_delinquent', label: 'Days Delinquent', required: false },
-];
+// Required columns for validation
+const REQUIRED_COLUMNS = ['loan_reference', 'original_principal', 'current_balance'];
+
+// Column name variations for auto-mapping
+const COLUMN_ALIASES: Record<string, string[]> = {
+  loan_reference: ['loan_reference', 'loan_id', 'loanid', 'id', 'reference', 'loan_number'],
+  original_principal: ['original_principal', 'principal', 'original_amount', 'loan_amount', 'amount'],
+  current_balance: ['current_balance', 'balance', 'outstanding_balance', 'remaining_balance'],
+  interest_rate: ['interest_rate', 'rate', 'apr', 'interest'],
+  term_months: ['term_months', 'term', 'months', 'loan_term'],
+  origination_date: ['origination_date', 'orig_date', 'start_date', 'issue_date'],
+  maturity_date: ['maturity_date', 'end_date', 'due_date'],
+  fico_score: ['fico_score', 'fico', 'credit_score', 'score'],
+  dti_ratio: ['dti_ratio', 'dti', 'debt_to_income'],
+  borrower_state: ['borrower_state', 'state', 'st'],
+  borrower_zip: ['borrower_zip', 'zip', 'zipcode', 'postal_code'],
+  monthly_payment: ['monthly_payment', 'payment', 'monthly_pmt'],
+  payments_made: ['payments_made', 'pmts_made', 'payments_completed'],
+  payments_remaining: ['payments_remaining', 'pmts_remaining'],
+  status: ['status', 'loan_status', 'current_status'],
+  days_delinquent: ['days_delinquent', 'delinquent_days', 'dpd'],
+};
 
 const STATUS_MAP: Record<string, LoanStatus> = {
   'current': 'current',
@@ -73,16 +72,75 @@ const STATUS_MAP: Record<string, LoanStatus> = {
   'paid_off': 'paid_off',
 };
 
+interface ValidationResult {
+  columnsFound: number;
+  columnsRequired: number;
+  formattingErrors: number;
+  recordsPassed: number;
+  totalRecords: number;
+}
+
 export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [rawData, setRawData] = useState<Record<string, unknown>[]>([]);
-  const [headers, setHeaders] = useState<string[]>([]);
-  const [columnMapping, setColumnMapping] = useState<ColumnMapping>({});
-  const [step, setStep] = useState<'upload' | 'mapping' | 'preview' | 'uploading' | 'complete'>('upload');
+  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
+  const [description, setDescription] = useState('');
+  const [step, setStep] = useState<'upload' | 'validated' | 'uploading' | 'complete'>('upload');
   const [error, setError] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedCount, setUploadedCount] = useState(0);
+
+  // Auto-map columns based on header names
+  const autoMapColumns = (headers: string[]): Record<string, string> => {
+    const mapping: Record<string, string> = {};
+    const normalizedHeaders = headers.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+    Object.entries(COLUMN_ALIASES).forEach(([fieldKey, aliases]) => {
+      for (const alias of aliases) {
+        const normalizedAlias = alias.replace(/[^a-z0-9]/g, '');
+        const matchIndex = normalizedHeaders.findIndex(h =>
+          h === normalizedAlias || h.includes(normalizedAlias) || normalizedAlias.includes(h)
+        );
+        if (matchIndex !== -1 && !mapping[fieldKey]) {
+          mapping[fieldKey] = headers[matchIndex];
+          break;
+        }
+      }
+    });
+
+    return mapping;
+  };
+
+  // Validate data and return results
+  const validateData = (data: Record<string, unknown>[], mapping: Record<string, string>): ValidationResult => {
+    const columnsFound = REQUIRED_COLUMNS.filter(col => mapping[col]).length;
+    let formattingErrors = 0;
+    let recordsPassed = 0;
+
+    data.forEach(row => {
+      let hasError = false;
+
+      // Check required fields
+      if (!row[mapping.loan_reference]) hasError = true;
+      if (!row[mapping.original_principal] || isNaN(Number(row[mapping.original_principal]))) hasError = true;
+      if (!row[mapping.current_balance] || isNaN(Number(row[mapping.current_balance]))) hasError = true;
+
+      if (hasError) {
+        formattingErrors++;
+      } else {
+        recordsPassed++;
+      }
+    });
+
+    return {
+      columnsFound,
+      columnsRequired: REQUIRED_COLUMNS.length,
+      formattingErrors,
+      recordsPassed,
+      totalRecords: data.length,
+    };
+  };
 
   // Parse uploaded file
   const parseFile = useCallback((file: File) => {
@@ -104,10 +162,13 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
             return;
           }
           const headers = Object.keys(data[0]);
-          setHeaders(headers);
+          const mapping = autoMapColumns(headers);
+          const validationResult = validateData(data, mapping);
+
           setRawData(data);
-          autoMapColumns(headers);
-          setStep('mapping');
+          setColumnMapping(mapping);
+          setValidation(validationResult);
+          setStep('validated');
         },
         error: (err) => {
           setError(`Failed to parse CSV: ${err.message}`);
@@ -128,10 +189,13 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
           }
 
           const headers = Object.keys(data[0]);
-          setHeaders(headers);
+          const mapping = autoMapColumns(headers);
+          const validationResult = validateData(data, mapping);
+
           setRawData(data);
-          autoMapColumns(headers);
-          setStep('mapping');
+          setColumnMapping(mapping);
+          setValidation(validationResult);
+          setStep('validated');
         } catch (err) {
           setError(`Failed to parse Excel file: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
@@ -142,133 +206,6 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
     }
   }, []);
 
-  // Auto-map columns based on header names
-  const autoMapColumns = (headers: string[]) => {
-    const mapping: ColumnMapping = {};
-    const normalizedHeaders = headers.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
-
-    LOAN_FIELDS.forEach(field => {
-      const normalizedKey = field.key.replace(/_/g, '');
-      const matchIndex = normalizedHeaders.findIndex(h =>
-        h.includes(normalizedKey) ||
-        normalizedKey.includes(h) ||
-        (field.key === 'loan_reference' && (h.includes('loanid') || h.includes('id') || h.includes('reference'))) ||
-        (field.key === 'original_principal' && (h.includes('principal') || h.includes('original'))) ||
-        (field.key === 'current_balance' && (h.includes('balance') || h.includes('current'))) ||
-        (field.key === 'interest_rate' && (h.includes('rate') || h.includes('apr') || h.includes('interest'))) ||
-        (field.key === 'term_months' && (h.includes('term') || h.includes('months'))) ||
-        (field.key === 'fico_score' && (h.includes('fico') || h.includes('credit') || h.includes('score'))) ||
-        (field.key === 'dti_ratio' && (h.includes('dti') || h.includes('debt'))) ||
-        (field.key === 'borrower_state' && h.includes('state')) ||
-        (field.key === 'borrower_zip' && (h.includes('zip') || h.includes('postal')))
-      );
-
-      if (matchIndex !== -1) {
-        mapping[field.key] = headers[matchIndex];
-      }
-    });
-
-    setColumnMapping(mapping);
-  };
-
-  // Validate and transform data
-  const validateAndTransform = (): LoanRow[] | null => {
-    const errors: string[] = [];
-    const loans: LoanRow[] = [];
-
-    // Check required fields are mapped
-    const requiredFields = LOAN_FIELDS.filter(f => f.required);
-    for (const field of requiredFields) {
-      if (!columnMapping[field.key]) {
-        errors.push(`Required field "${field.label}" is not mapped`);
-      }
-    }
-
-    if (errors.length > 0) {
-      setValidationErrors(errors);
-      return null;
-    }
-
-    // Transform each row
-    rawData.forEach((row, index) => {
-      try {
-        const loan: LoanRow = {
-          loan_reference: String(row[columnMapping.loan_reference] || ''),
-          original_principal: parseFloat(String(row[columnMapping.original_principal] || 0)),
-          current_balance: parseFloat(String(row[columnMapping.current_balance] || 0)),
-          interest_rate: parseFloat(String(row[columnMapping.interest_rate] || 0)),
-          term_months: parseInt(String(row[columnMapping.term_months] || 0), 10),
-          origination_date: formatDate(row[columnMapping.origination_date]),
-        };
-
-        // Optional fields
-        if (columnMapping.borrower_state && row[columnMapping.borrower_state]) {
-          loan.borrower_state = String(row[columnMapping.borrower_state]).substring(0, 2).toUpperCase();
-        }
-        if (columnMapping.borrower_zip && row[columnMapping.borrower_zip]) {
-          loan.borrower_zip = String(row[columnMapping.borrower_zip]).substring(0, 10);
-        }
-        if (columnMapping.maturity_date && row[columnMapping.maturity_date]) {
-          loan.maturity_date = formatDate(row[columnMapping.maturity_date]);
-        }
-        if (columnMapping.fico_score && row[columnMapping.fico_score]) {
-          loan.fico_score = parseInt(String(row[columnMapping.fico_score]), 10);
-        }
-        if (columnMapping.dti_ratio && row[columnMapping.dti_ratio]) {
-          loan.dti_ratio = parseFloat(String(row[columnMapping.dti_ratio]));
-        }
-        if (columnMapping.monthly_payment && row[columnMapping.monthly_payment]) {
-          loan.monthly_payment = parseFloat(String(row[columnMapping.monthly_payment]));
-        }
-        if (columnMapping.payments_made && row[columnMapping.payments_made]) {
-          loan.payments_made = parseInt(String(row[columnMapping.payments_made]), 10);
-        }
-        if (columnMapping.payments_remaining && row[columnMapping.payments_remaining]) {
-          loan.payments_remaining = parseInt(String(row[columnMapping.payments_remaining]), 10);
-        }
-        if (columnMapping.status && row[columnMapping.status]) {
-          const statusStr = String(row[columnMapping.status]).toLowerCase();
-          loan.status = STATUS_MAP[statusStr] || 'current';
-        }
-        if (columnMapping.days_delinquent && row[columnMapping.days_delinquent]) {
-          loan.days_delinquent = parseInt(String(row[columnMapping.days_delinquent]), 10);
-        }
-
-        // Validate row
-        if (!loan.loan_reference) {
-          errors.push(`Row ${index + 2}: Missing loan reference`);
-        }
-        if (isNaN(loan.original_principal) || loan.original_principal <= 0) {
-          errors.push(`Row ${index + 2}: Invalid original principal`);
-        }
-        if (isNaN(loan.current_balance) || loan.current_balance < 0) {
-          errors.push(`Row ${index + 2}: Invalid current balance`);
-        }
-        if (isNaN(loan.interest_rate) || loan.interest_rate < 0 || loan.interest_rate > 100) {
-          errors.push(`Row ${index + 2}: Invalid interest rate`);
-        }
-        if (isNaN(loan.term_months) || loan.term_months <= 0) {
-          errors.push(`Row ${index + 2}: Invalid term`);
-        }
-
-        loans.push(loan);
-      } catch (err) {
-        errors.push(`Row ${index + 2}: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      }
-    });
-
-    if (errors.length > 0) {
-      setValidationErrors(errors.slice(0, 20)); // Show first 20 errors
-      if (errors.length > 20) {
-        setValidationErrors(prev => [...prev, `... and ${errors.length - 20} more errors`]);
-      }
-      return null;
-    }
-
-    setValidationErrors([]);
-    return loans;
-  };
-
   // Format date from various formats
   const formatDate = (value: unknown): string => {
     if (!value) return new Date().toISOString().split('T')[0];
@@ -278,8 +215,6 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
     }
 
     const strValue = String(value);
-
-    // Try parsing as ISO date
     const isoDate = new Date(strValue);
     if (!isNaN(isoDate.getTime())) {
       return isoDate.toISOString().split('T')[0];
@@ -295,26 +230,59 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
     return new Date().toISOString().split('T')[0];
   };
 
-  // Handle mapping change
-  const handleMappingChange = (fieldKey: string, columnName: string) => {
-    setColumnMapping(prev => ({
-      ...prev,
-      [fieldKey]: columnName === '' ? undefined : columnName,
-    }));
-  };
+  // Transform data for upload
+  const transformData = (): LoanRow[] => {
+    return rawData.map(row => {
+      const loan: LoanRow = {
+        loan_reference: String(row[columnMapping.loan_reference] || ''),
+        original_principal: parseFloat(String(row[columnMapping.original_principal] || 0)),
+        current_balance: parseFloat(String(row[columnMapping.current_balance] || 0)),
+        interest_rate: columnMapping.interest_rate ? parseFloat(String(row[columnMapping.interest_rate] || 0)) : 0,
+        term_months: columnMapping.term_months ? parseInt(String(row[columnMapping.term_months] || 36), 10) : 36,
+        origination_date: columnMapping.origination_date ? formatDate(row[columnMapping.origination_date]) : new Date().toISOString().split('T')[0],
+      };
 
-  // Proceed to preview
-  const handlePreview = () => {
-    const loans = validateAndTransform();
-    if (loans) {
-      setStep('preview');
-    }
+      // Optional fields
+      if (columnMapping.borrower_state && row[columnMapping.borrower_state]) {
+        loan.borrower_state = String(row[columnMapping.borrower_state]).substring(0, 2).toUpperCase();
+      }
+      if (columnMapping.borrower_zip && row[columnMapping.borrower_zip]) {
+        loan.borrower_zip = String(row[columnMapping.borrower_zip]).substring(0, 10);
+      }
+      if (columnMapping.maturity_date && row[columnMapping.maturity_date]) {
+        loan.maturity_date = formatDate(row[columnMapping.maturity_date]);
+      }
+      if (columnMapping.fico_score && row[columnMapping.fico_score]) {
+        loan.fico_score = parseInt(String(row[columnMapping.fico_score]), 10);
+      }
+      if (columnMapping.dti_ratio && row[columnMapping.dti_ratio]) {
+        loan.dti_ratio = parseFloat(String(row[columnMapping.dti_ratio]));
+      }
+      if (columnMapping.monthly_payment && row[columnMapping.monthly_payment]) {
+        loan.monthly_payment = parseFloat(String(row[columnMapping.monthly_payment]));
+      }
+      if (columnMapping.payments_made && row[columnMapping.payments_made]) {
+        loan.payments_made = parseInt(String(row[columnMapping.payments_made]), 10);
+      }
+      if (columnMapping.payments_remaining && row[columnMapping.payments_remaining]) {
+        loan.payments_remaining = parseInt(String(row[columnMapping.payments_remaining]), 10);
+      }
+      if (columnMapping.status && row[columnMapping.status]) {
+        const statusStr = String(row[columnMapping.status]).toLowerCase();
+        loan.status = STATUS_MAP[statusStr] || 'current';
+      }
+      if (columnMapping.days_delinquent && row[columnMapping.days_delinquent]) {
+        loan.days_delinquent = parseInt(String(row[columnMapping.days_delinquent]), 10);
+      }
+
+      return loan;
+    });
   };
 
   // Upload loans
   const handleUpload = async () => {
-    const loans = validateAndTransform();
-    if (!loans) return;
+    const loans = transformData();
+    if (!loans.length) return;
 
     setStep('uploading');
     setUploadProgress(0);
@@ -334,6 +302,7 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
           body: JSON.stringify({
             pool_id: poolId,
             loans: batch,
+            description: description || undefined,
           }),
         });
 
@@ -351,7 +320,7 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
       onUploadComplete?.(loans.length);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
-      setStep('preview');
+      setStep('validated');
     }
   };
 
@@ -377,190 +346,211 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
   const handleReset = () => {
     setFile(null);
     setRawData([]);
-    setHeaders([]);
     setColumnMapping({});
+    setDescription('');
     setStep('upload');
     setError(null);
-    setValidationErrors([]);
+    setValidation(null);
     setUploadProgress(0);
     setUploadedCount(0);
   };
 
+  // Remove file
+  const handleRemoveFile = () => {
+    setFile(null);
+    setRawData([]);
+    setColumnMapping({});
+    setValidation(null);
+    setStep('upload');
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="bg-white rounded-xl border border-light p-8">
       {error && (
-        <Alert variant="error">
+        <Alert variant="error" className="mb-6">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {/* Step 1: Upload */}
       {step === 'upload' && (
-        <div
-          onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
-          className="border-2 border-dashed border-light rounded-xl p-12 text-center hover:border-primary transition-colors cursor-pointer"
-          onClick={() => document.getElementById('loan-tape-input')?.click()}
-        >
-          <input
-            id="loan-tape-input"
-            type="file"
-            accept=".csv,.xlsx,.xls"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-lightest flex items-center justify-center">
-              <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-lg font-medium text-darkest">Drop your loan tape here</p>
-              <p className="text-medium mt-1">or click to browse</p>
-            </div>
-            <p className="text-sm text-medium">Supports CSV and Excel (.xlsx, .xls)</p>
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-darkest">Upload Loan Tape</h2>
+            <p className="text-dark mt-1">
+              Upload a CSV or Excel file containing your loan data. Only a single sheet is supported.
+            </p>
           </div>
+
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            className="border-2 border-dashed border-light rounded-lg p-10 text-center hover:border-primary/50 transition-colors cursor-pointer"
+            onClick={() => document.getElementById('loan-tape-input')?.click()}
+          >
+            <input
+              id="loan-tape-input"
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <div className="flex flex-col items-center gap-3">
+              <svg className="w-10 h-10 text-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <div>
+                <p className="font-semibold text-darkest">Choose file to upload</p>
+                <p className="text-sm text-medium mt-1">.CSV or .XLSX file, maximum 10MB</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              placeholder="Pool Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          <Button className="w-full" disabled>
+            Upload Tape
+          </Button>
         </div>
       )}
 
-      {/* Step 2: Column Mapping */}
-      {step === 'mapping' && (
+      {/* Step 2: Validated */}
+      {step === 'validated' && validation && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-darkest">Map Columns</h3>
-              <p className="text-medium">
-                {file?.name} - {rawData.length.toLocaleString()} loans found
-              </p>
-            </div>
-            <Button variant="outline" onClick={handleReset}>
-              Upload Different File
-            </Button>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold text-darkest">Loan Tape Validation</h2>
+            <span className="text-sm font-medium text-success">Upload succeeded</span>
           </div>
 
-          {validationErrors.length > 0 && (
-            <Alert variant="error">
-              <AlertDescription>
-                <ul className="list-disc list-inside space-y-1">
-                  {validationErrors.map((err, i) => (
-                    <li key={i}>{err}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* File info */}
+          <div className="space-y-2">
+            <p className="font-medium text-darkest">File Uploaded</p>
+            <div className="flex items-center justify-between p-4 bg-lightest rounded-lg border border-light">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded bg-white border border-light flex items-center justify-center">
+                  <svg className="w-5 h-5 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-medium text-darkest truncate max-w-[200px]">{file?.name}</p>
+                  <p className="text-sm text-medium">{rawData.length.toLocaleString()} records</p>
+                </div>
+              </div>
+              <button
+                onClick={handleRemoveFile}
+                className="p-2 text-medium hover:text-darkest transition-colors"
+                aria-label="Remove file"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
 
-          <div className="bg-white rounded-xl border border-light divide-y divide-light">
-            {LOAN_FIELDS.map((field) => (
-              <div key={field.key} className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-2">
-                  <span className={field.required ? 'font-medium text-darkest' : 'text-dark'}>
-                    {field.label}
-                  </span>
-                  {field.required && (
-                    <span className="text-xs text-error">*</span>
+          {/* Summary */}
+          <div className="space-y-2">
+            <p className="font-medium text-darkest">Summary</p>
+            <div className="space-y-2">
+              <Label htmlFor="pool-description">Pool description</Label>
+              <Input
+                id="pool-description"
+                placeholder="Pool Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Validation Results */}
+          <div className="space-y-3">
+            <p className="font-bold text-darkest">Validation Results</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  validation.columnsFound === validation.columnsRequired ? 'bg-success/10' : 'bg-error/10'
+                }`}>
+                  {validation.columnsFound === validation.columnsRequired ? (
+                    <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
                   )}
                 </div>
-                <div className="w-64">
-                  <Select
-                    value={columnMapping[field.key] || ''}
-                    onValueChange={(value) => handleMappingChange(field.key, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select column..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">-- Not mapped --</SelectItem>
-                      {headers.map((header) => (
-                        <SelectItem key={header} value={header}>
-                          {header}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <span className="text-dark">
+                  File includes {validation.columnsFound} of {validation.columnsRequired} required columns
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  validation.formattingErrors === 0 ? 'bg-success/10' : 'bg-error/10'
+                }`}>
+                  {validation.formattingErrors === 0 ? (
+                    <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
+                <span className="text-dark">
+                  {validation.formattingErrors === 0
+                    ? 'No rows contain formatting errors'
+                    : `${validation.formattingErrors} rows contain formatting errors`}
+                </span>
               </div>
-            ))}
+
+              <div className="flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  validation.recordsPassed === validation.totalRecords ? 'bg-success/10' : 'bg-error/10'
+                }`}>
+                  {validation.recordsPassed === validation.totalRecords ? (
+                    <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-dark">
+                  {validation.recordsPassed === validation.totalRecords
+                    ? `All ${validation.totalRecords.toLocaleString()} records passed data checks`
+                    : `${validation.recordsPassed.toLocaleString()} of ${validation.totalRecords.toLocaleString()} records passed data checks`}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex justify-end gap-4">
-            <Button variant="outline" onClick={handleReset}>
-              Cancel
-            </Button>
-            <Button onClick={handlePreview}>
-              Preview Import
-            </Button>
-          </div>
+          <Button
+            className="w-full"
+            onClick={handleUpload}
+            disabled={validation.columnsFound !== validation.columnsRequired}
+          >
+            Continue
+          </Button>
         </div>
       )}
 
-      {/* Step 3: Preview */}
-      {step === 'preview' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-darkest">Preview Import</h3>
-              <p className="text-medium">
-                Ready to import {rawData.length.toLocaleString()} loans
-              </p>
-            </div>
-            <Button variant="outline" onClick={() => setStep('mapping')}>
-              Back to Mapping
-            </Button>
-          </div>
-
-          {/* Preview table */}
-          <div className="bg-white rounded-xl border border-light overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-lightest border-b border-light">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium text-dark">Loan ID</th>
-                    <th className="px-4 py-3 text-left font-medium text-dark">Principal</th>
-                    <th className="px-4 py-3 text-left font-medium text-dark">Balance</th>
-                    <th className="px-4 py-3 text-left font-medium text-dark">APR</th>
-                    <th className="px-4 py-3 text-left font-medium text-dark">Term</th>
-                    <th className="px-4 py-3 text-left font-medium text-dark">FICO</th>
-                    <th className="px-4 py-3 text-left font-medium text-dark">State</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-light">
-                  {rawData.slice(0, 10).map((row, i) => (
-                    <tr key={i}>
-                      <td className="px-4 py-3 text-darkest">{String(row[columnMapping.loan_reference] || '-')}</td>
-                      <td className="px-4 py-3">${Number(row[columnMapping.original_principal] || 0).toLocaleString()}</td>
-                      <td className="px-4 py-3">${Number(row[columnMapping.current_balance] || 0).toLocaleString()}</td>
-                      <td className="px-4 py-3">{Number(row[columnMapping.interest_rate] || 0).toFixed(2)}%</td>
-                      <td className="px-4 py-3">{row[columnMapping.term_months] || '-'} mo</td>
-                      <td className="px-4 py-3">{row[columnMapping.fico_score] || '-'}</td>
-                      <td className="px-4 py-3">{row[columnMapping.borrower_state] || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {rawData.length > 10 && (
-              <div className="px-4 py-3 bg-lightest text-medium text-sm">
-                Showing 10 of {rawData.length.toLocaleString()} loans
-              </div>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-4">
-            <Button variant="outline" onClick={handleReset}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpload}>
-              Import {rawData.length.toLocaleString()} Loans
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 4: Uploading */}
+      {/* Step 3: Uploading */}
       {step === 'uploading' && (
-        <div className="bg-white rounded-xl border border-light p-12 text-center">
+        <div className="py-12 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
               <svg className="w-8 h-8 text-primary animate-spin" fill="none" viewBox="0 0 24 24">
@@ -585,9 +575,9 @@ export function LoanTapeUpload({ poolId, onUploadComplete }: LoanTapeUploadProps
         </div>
       )}
 
-      {/* Step 5: Complete */}
+      {/* Step 4: Complete */}
       {step === 'complete' && (
-        <div className="bg-white rounded-xl border border-light p-12 text-center">
+        <div className="py-12 text-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center">
               <svg className="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -177,8 +177,8 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
         />
       </FormField>
 
-      <Button type="submit" fullWidth disabled={isLoading}>
-        {isLoading ? 'Creating account...' : 'Create account'}
+      <Button type="submit" fullWidth loading={isLoading}>
+        Create account
       </Button>
     </form>
   );
