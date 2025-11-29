@@ -4,9 +4,27 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  canonicalUrl?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
 }
 
-const { title, description = 'Institutional-grade private credit for real businesses' } = Astro.props;
+const {
+  title,
+  description = 'PrimeBridge connects fintech lenders with accredited investors. List loan pools, access capital, and earn 12-20%+ yields on private credit.',
+  image = '/PrimeBridge_Finance.jpg',
+  canonicalUrl,
+  type = 'website',
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = 'https://primebridge.finance';
+const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+const fullCanonicalUrl = canonicalUrl || `${siteUrl}${Astro.url.pathname}`;
+
+// Ensure title is within 60 chars for SEO
+const fullTitle = title.includes('PrimeBridge') ? title : `${title} | PrimeBridge Finance`;
 ---
 
 <!doctype html>
@@ -14,9 +32,58 @@ const { title, description = 'Institutional-grade private credit for real busine
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="title" content={fullTitle} />
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} | PrimeBridge Finance</title>
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={fullCanonicalUrl} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={fullCanonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="PrimeBridge Finance" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={fullCanonicalUrl} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullImageUrl} />
+
+    <!-- Additional SEO -->
+    <meta name="author" content="PrimeBridge Finance" />
+    <meta name="theme-color" content="#1B365D" />
+
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FinancialService",
+      "name": "PrimeBridge Finance",
+      "description": "Private credit marketplace connecting fintech lenders with accredited investors.",
+      "url": siteUrl,
+      "logo": `${siteUrl}/logo.png`,
+      "sameAs": [],
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "US"
+      },
+      "areaServed": "US",
+      "serviceType": ["Private Credit", "Loan Pool Marketplace", "Alternative Investments"]
+    })} />
   </head>
   <body class="min-h-screen bg-white antialiased">
     <slot />

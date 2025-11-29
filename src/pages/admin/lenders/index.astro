@@ -1,0 +1,147 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { lenderStatusLabels, loanTypeLabels, riskTierLabels, getRiskTierColor, formatCurrency } from '../../../types/database';
+import type { LenderStatus, RiskTier } from '../../../types/database';
+
+const user = Astro.locals.user;
+if (!user || user.role !== 'admin') {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get filters from query params
+const url = new URL(Astro.request.url);
+const statusFilter = url.searchParams.get('status');
+
+// Build query
+let query = supabase
+  .from('lenders')
+  .select('*, users(name, email)')
+  .order('created_at', { ascending: false });
+
+if (statusFilter) {
+  query = query.eq('status', statusFilter);
+}
+
+const { data: lenders } = await query;
+
+const statusColors: Record<LenderStatus, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  under_review: 'bg-blue-100 text-blue-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
+  suspended: 'bg-gray-100 text-gray-700',
+};
+---
+
+<AdminLayout title="Lenders">
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-darkest">Lender Management</h1>
+        <p class="text-dark mt-1">Review and manage fintech lender accounts</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl border border-light p-4">
+      <div class="flex flex-wrap gap-2">
+        <a
+          href="/admin/lenders"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${!statusFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          All
+        </a>
+        <a
+          href="/admin/lenders?status=pending"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'pending' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          Pending
+        </a>
+        <a
+          href="/admin/lenders?status=under_review"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'under_review' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          Under Review
+        </a>
+        <a
+          href="/admin/lenders?status=approved"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'approved' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          Approved
+        </a>
+        <a
+          href="/admin/lenders?status=rejected"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${statusFilter === 'rejected' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          Rejected
+        </a>
+      </div>
+    </div>
+
+    <!-- Lenders List -->
+    <div class="bg-white rounded-xl border border-light overflow-hidden">
+      {lenders && lenders.length > 0 ? (
+        <div class="divide-y divide-light">
+          {lenders.map((lender) => (
+            <a href={`/admin/lenders/${lender.id}`} class="block p-6 hover:bg-lightest transition-colors no-underline">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-3 mb-2">
+                    <h3 class="font-semibold text-darkest truncate text-lg">{lender.company_name}</h3>
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusColors[lender.status as LenderStatus]}`}>
+                      {lenderStatusLabels[lender.status as LenderStatus]}
+                    </span>
+                    {lender.risk_tier && (
+                      <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRiskTierColor(lender.risk_tier as RiskTier)}`}>
+                        {riskTierLabels[lender.risk_tier as RiskTier]}
+                      </span>
+                    )}
+                  </div>
+                  <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-dark">
+                    <span>{lender.users?.email}</span>
+                    <span>{lender.primary_contact_name}</span>
+                    {lender.headquarters_state && <span>{lender.headquarters_state}</span>}
+                    {lender.year_founded && <span>Est. {lender.year_founded}</span>}
+                  </div>
+                </div>
+                <div class="flex items-center gap-6">
+                  {lender.loan_types && lender.loan_types.length > 0 && (
+                    <div class="text-right">
+                      <p class="font-semibold text-darkest">{lender.loan_types.map((t: string) => loanTypeLabels[t as keyof typeof loanTypeLabels]).join(', ')}</p>
+                      <p class="text-xs text-dark">Loan Types</p>
+                    </div>
+                  )}
+                  {lender.monthly_origination_volume && (
+                    <div class="text-right">
+                      <p class="font-semibold text-darkest">{formatCurrency(lender.monthly_origination_volume)}/mo</p>
+                      <p class="text-xs text-dark">Volume</p>
+                    </div>
+                  )}
+                  <svg class="w-5 h-5 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="p-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-lightest mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-8 h-8 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-darkest mb-2">No lenders found</h3>
+          <p class="text-dark max-w-sm mx-auto">
+            {statusFilter ? 'No lenders match this filter.' : 'No lenders have registered yet.'}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>

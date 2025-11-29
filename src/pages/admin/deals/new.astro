@@ -1,0 +1,185 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { loanTypeLabels, riskTierLabels, getRiskTierColor, formatCurrency } from '../../../types/database';
+import type { RiskTier, LoanType } from '../../../types/database';
+import { DealForm } from '../../../components/forms/DealForm';
+
+const user = Astro.locals.user;
+if (!user || user.role !== 'admin') {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get pool_id from query params if provided
+const url = new URL(Astro.request.url);
+const poolId = url.searchParams.get('pool_id');
+
+// Get selected pool if pool_id provided
+let selectedPool = null;
+if (poolId) {
+  const { data: pool } = await supabase
+    .from('loan_pools')
+    .select('*, lenders(company_name, risk_tier)')
+    .eq('id', poolId)
+    .eq('status', 'approved')
+    .single();
+
+  selectedPool = pool;
+}
+
+// Get all approved pools that haven't been converted yet
+const { data: availablePools } = await supabase
+  .from('loan_pools')
+  .select('*, lenders(company_name, risk_tier)')
+  .eq('status', 'approved')
+  .order('created_at', { ascending: false });
+
+// Filter out pools that already have deals
+const poolsWithDeals = new Set();
+if (availablePools) {
+  const { data: existingDeals } = await supabase
+    .from('deals')
+    .select('loan_pool_id');
+
+  existingDeals?.forEach(deal => {
+    if (deal.loan_pool_id) poolsWithDeals.add(deal.loan_pool_id);
+  });
+}
+
+const eligiblePools = availablePools?.filter(pool => !poolsWithDeals.has(pool.id)) || [];
+---
+
+<AdminLayout title="Create Deal">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/admin/deals" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to deals
+      </a>
+      <h1 class="text-2xl font-bold text-darkest">Create New Deal</h1>
+      <p class="text-dark mt-2">
+        Convert an approved loan pool into an investment deal for investors.
+      </p>
+    </div>
+
+    {eligiblePools.length === 0 && !selectedPool ? (
+      <div class="bg-white rounded-xl border border-light p-12 text-center">
+        <div class="w-16 h-16 rounded-full bg-amber-50 mx-auto mb-4 flex items-center justify-center">
+          <svg class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-darkest mb-2">No eligible pools</h3>
+        <p class="text-dark max-w-sm mx-auto mb-6">
+          There are no approved loan pools available to convert into deals. Review and approve pending pools first.
+        </p>
+        <a
+          href="/admin/pools?status=submitted"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+        >
+          Review Pending Pools
+        </a>
+      </div>
+    ) : (
+      <>
+        {/* Pool Selection (if not pre-selected) */}
+        {!selectedPool && (
+          <div class="bg-white rounded-xl border border-light p-6">
+            <h2 class="text-lg font-bold text-darkest mb-4">Select Loan Pool</h2>
+            <div class="space-y-4">
+              {eligiblePools.map((pool) => (
+                <a
+                  href={`/admin/deals/new?pool_id=${pool.id}`}
+                  class="block p-4 border border-light rounded-lg hover:border-primary hover:bg-lightest transition-colors no-underline"
+                >
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-3 mb-1">
+                        <p class="font-semibold text-darkest truncate">{pool.pool_name}</p>
+                        {pool.platform_risk_tier && (
+                          <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRiskTierColor(pool.platform_risk_tier as RiskTier)}`}>
+                            {riskTierLabels[pool.platform_risk_tier as RiskTier]}
+                          </span>
+                        )}
+                      </div>
+                      <p class="text-sm text-dark">
+                        {pool.lenders?.company_name} &bull; {loanTypeLabels[pool.loan_type as LoanType]} &bull; {pool.total_loans} loans
+                      </p>
+                    </div>
+                    <div class="text-right">
+                      <p class="font-semibold text-darkest">{formatCurrency(pool.total_principal)}</p>
+                      <p class="text-xs text-dark">{pool.weighted_avg_apr}% APR</p>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Selected Pool Summary */}
+        {selectedPool && (
+          <div class="bg-primary/5 rounded-xl border border-primary/20 p-6">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm font-medium text-primary mb-1">Selected Pool</p>
+                <div class="flex items-center gap-3">
+                  <h2 class="text-xl font-bold text-darkest">{selectedPool.pool_name}</h2>
+                  {selectedPool.platform_risk_tier && (
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRiskTierColor(selectedPool.platform_risk_tier as RiskTier)}`}>
+                      {riskTierLabels[selectedPool.platform_risk_tier as RiskTier]}
+                    </span>
+                  )}
+                </div>
+                <p class="text-dark mt-1">
+                  {selectedPool.lenders?.company_name} &bull; {loanTypeLabels[selectedPool.loan_type as LoanType]}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold text-darkest">{formatCurrency(selectedPool.total_outstanding_balance)}</p>
+                <p class="text-sm text-dark">Outstanding Balance</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-primary/20">
+              <div>
+                <p class="text-sm text-dark">Loans</p>
+                <p class="font-semibold text-darkest">{selectedPool.total_loans.toLocaleString()}</p>
+              </div>
+              <div>
+                <p class="text-sm text-dark">Avg APR</p>
+                <p class="font-semibold text-darkest">{selectedPool.weighted_avg_apr}%</p>
+              </div>
+              <div>
+                <p class="text-sm text-dark">Avg Term</p>
+                <p class="font-semibold text-darkest">{selectedPool.weighted_avg_term_months} mo</p>
+              </div>
+              {selectedPool.weighted_avg_fico && (
+                <div>
+                  <p class="text-sm text-dark">Avg FICO</p>
+                  <p class="font-semibold text-darkest">{selectedPool.weighted_avg_fico}</p>
+                </div>
+              )}
+            </div>
+            <a href="/admin/deals/new" class="inline-flex items-center text-primary text-sm font-medium mt-4 hover:underline">
+              Choose different pool
+            </a>
+          </div>
+        )}
+
+        {/* Deal Form */}
+        {selectedPool && (
+          <DealForm
+            client:load
+            pool={selectedPool}
+            adminId={user.id}
+          />
+        )}
+      </>
+    )}
+  </div>
+</AdminLayout>

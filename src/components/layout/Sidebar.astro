@@ -26,34 +26,35 @@ interface Props {
 
 const { role, currentPath } = Astro.props;
 
-const borrowerNav: NavItem[] = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/application', label: 'Application', icon: FileText },
-  { href: '/application/upload', label: 'Documents', icon: Upload },
-  { href: '/application/status', label: 'Status', icon: Clock },
+const lenderNav: NavItem[] = [
+  { href: '/lender/dashboard', label: 'Dashboard', icon: Home },
+  { href: '/lender/pools', label: 'Loan Pools', icon: FileText },
+  { href: '/lender/pools/new', label: 'Submit Pool', icon: Upload },
+  { href: '/lender/deals', label: 'Active Deals', icon: TrendingUp },
 ];
 
 const investorNav: NavItem[] = [
   { href: '/investor/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/deals', label: 'Deal Room', icon: Briefcase },
-  { href: '/investor/interests', label: 'My Interests', icon: TrendingUp },
+  { href: '/investor/deals', label: 'Deal Room', icon: Briefcase },
+  { href: '/investor/portfolio', label: 'My Portfolio', icon: TrendingUp },
 ];
 
 const adminNav: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: Home },
-  { href: '/admin/applications', label: 'Applications', icon: FileText },
+  { href: '/admin/lenders', label: 'Lenders', icon: Building2 },
+  { href: '/admin/pools', label: 'Loan Pools', icon: FileText },
   { href: '/admin/investors', label: 'Investors', icon: Users },
   { href: '/admin/deals', label: 'Deals', icon: Briefcase },
 ];
 
-const navItems = role === 'borrower'
-  ? borrowerNav
+const navItems = role === 'lender'
+  ? lenderNav
   : role === 'investor'
     ? investorNav
     : adminNav;
 
 function isActive(href: string): boolean {
-  if (href === '/dashboard' || href === '/investor/dashboard' || href === '/admin') {
+  if (href === '/lender/dashboard' || href === '/investor/dashboard' || href === '/admin') {
     return currentPath === href;
   }
   return currentPath.startsWith(href);
@@ -63,8 +64,12 @@ function isActive(href: string): boolean {
 <aside class="w-64 bg-white border-r border-light min-h-screen flex flex-col">
   <!-- Logo -->
   <div class="h-16 flex items-center px-6 border-b border-light">
-    <a href="/" class="flex items-center gap-2 no-underline">
-      <span class="text-lg font-bold text-primary">PrimeBridge</span>
+    <a href="/" class="flex items-center no-underline">
+      <img
+        src="/logo.png"
+        alt="PrimeBridge Finance"
+        class="h-8 w-auto"
+      />
     </a>
   </div>
 

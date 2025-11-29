@@ -1,0 +1,342 @@
+---
+import LenderLayout from '../../../layouts/LenderLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { formatCurrency, loanPoolStatusLabels, loanTypeLabels, riskTierLabels, documentTypeLabels } from '../../../types/database';
+import type { LoanPoolStatus, DocumentType } from '../../../types/database';
+
+const { id } = Astro.params;
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get lender profile
+const { data: lender } = await supabase
+  .from('lenders')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+if (!lender) {
+  return Astro.redirect('/lender/dashboard');
+}
+
+// Get pool with documents
+const { data: pool } = await supabase
+  .from('loan_pools')
+  .select('*, loan_pool_documents(*)')
+  .eq('id', id)
+  .eq('lender_id', lender.id)
+  .single();
+
+if (!pool) {
+  return Astro.redirect('/lender/pools');
+}
+
+// Get associated deal if exists
+const { data: deal } = await supabase
+  .from('deals')
+  .select('*')
+  .eq('loan_pool_id', id)
+  .single();
+
+const statusColors: Record<LoanPoolStatus, string> = {
+  draft: 'bg-gray-100 text-gray-700',
+  submitted: 'bg-blue-100 text-blue-700',
+  under_review: 'bg-amber-100 text-amber-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
+  converted: 'bg-purple-100 text-purple-700',
+};
+
+const canSubmit = pool.status === 'draft';
+const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
+---
+
+<LenderLayout title={pool.pool_name}>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/lender/pools" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to pools
+      </a>
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-2xl font-bold text-darkest">{pool.pool_name}</h1>
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColors[pool.status as LoanPoolStatus]}`}>
+              {loanPoolStatusLabels[pool.status as LoanPoolStatus]}
+            </span>
+          </div>
+          {pool.pool_reference && (
+            <p class="text-dark">Reference: {pool.pool_reference}</p>
+          )}
+        </div>
+        {canSubmit && (
+          <form action={`/api/lender/pools/${id}/submit`} method="POST">
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold whitespace-nowrap"
+            >
+              Submit for review
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+
+    {/* Status Messages */}
+    {pool.status === 'submitted' && (
+      <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex gap-3">
+          <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="font-medium text-blue-800">Pool submitted for review</p>
+            <p class="text-sm text-blue-700 mt-1">Our team is reviewing your submission. You'll be notified once it's approved.</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {pool.status === 'approved' && !deal && (
+      <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div class="flex gap-3">
+          <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="font-medium text-green-800">Pool approved!</p>
+            <p class="text-sm text-green-700 mt-1">Your pool has been approved. Our team is now preparing it as a deal for investors.</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {deal && (
+      <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex gap-3">
+            <svg class="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <div>
+              <p class="font-medium text-purple-800">Active Deal: {deal.title}</p>
+              <p class="text-sm text-purple-700 mt-1">
+                {formatCurrency(deal.amount_committed)} of {formatCurrency(deal.total_amount)} committed
+              </p>
+            </div>
+          </div>
+          <a href={`/lender/deals/${deal.id}`} class="text-purple-700 font-medium text-sm hover:underline">
+            View deal
+          </a>
+        </div>
+      </div>
+    )}
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Main Info -->
+      <div class="lg:col-span-2 space-y-6">
+        {/* Pool Summary */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Pool Summary</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Loan Type</p>
+              <p class="font-semibold text-darkest">{loanTypeLabels[pool.loan_type as keyof typeof loanTypeLabels]}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Total Loans</p>
+              <p class="font-semibold text-darkest">{pool.total_loans.toLocaleString()}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Total Principal</p>
+              <p class="font-semibold text-darkest">{formatCurrency(pool.total_principal)}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Outstanding Balance</p>
+              <p class="font-semibold text-darkest">{formatCurrency(pool.total_outstanding_balance)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Pool Characteristics */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Characteristics</h2>
+          <div class="grid sm:grid-cols-3 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Weighted Avg APR</p>
+              <p class="font-semibold text-darkest">{pool.weighted_avg_apr}%</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Avg Term</p>
+              <p class="font-semibold text-darkest">{pool.weighted_avg_term_months} months</p>
+            </div>
+            {pool.weighted_avg_fico && (
+              <div>
+                <p class="text-sm text-medium mb-1">Avg FICO</p>
+                <p class="font-semibold text-darkest">{pool.weighted_avg_fico}</p>
+              </div>
+            )}
+            {pool.weighted_avg_seasoning_months && (
+              <div>
+                <p class="text-sm text-medium mb-1">Avg Seasoning</p>
+                <p class="font-semibold text-darkest">{pool.weighted_avg_seasoning_months} months</p>
+              </div>
+            )}
+            {pool.current_delinquency_rate !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Current Delinquency</p>
+                <p class="font-semibold text-darkest">{(pool.current_delinquency_rate * 100).toFixed(2)}%</p>
+              </div>
+            )}
+            {pool.historical_default_rate !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Historical Default Rate</p>
+                <p class="font-semibold text-darkest">{(pool.historical_default_rate * 100).toFixed(2)}%</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bank Info */}
+        {pool.originating_bank && (
+          <div class="bg-white rounded-xl border border-light p-6">
+            <h2 class="text-lg font-bold text-darkest mb-6">Origination</h2>
+            <div class="grid sm:grid-cols-2 gap-6">
+              <div>
+                <p class="text-sm text-medium mb-1">Originating Bank</p>
+                <p class="font-semibold text-darkest">{pool.originating_bank}</p>
+              </div>
+              <div>
+                <p class="text-sm text-medium mb-1">Bank Hold Completed</p>
+                <p class="font-semibold text-darkest">
+                  {pool.bank_hold_completed ? 'Yes' : 'Pending'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Admin Notes (if any) */}
+        {pool.admin_notes && (
+          <div class="bg-amber-50 rounded-xl border border-amber-200 p-6">
+            <h2 class="text-lg font-bold text-amber-800 mb-2">Admin Feedback</h2>
+            <p class="text-amber-700">{pool.admin_notes}</p>
+          </div>
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        {/* Quick Stats */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Quick Stats</h3>
+          <div class="space-y-4">
+            <div class="flex justify-between">
+              <span class="text-dark">Avg Loan Size</span>
+              <span class="font-semibold text-darkest">
+                {formatCurrency(pool.total_principal / pool.total_loans)}
+              </span>
+            </div>
+            {pool.asking_price_percent && (
+              <div class="flex justify-between">
+                <span class="text-dark">Asking Price</span>
+                <span class="font-semibold text-darkest">{pool.asking_price_percent}%</span>
+              </div>
+            )}
+            {pool.platform_risk_tier && (
+              <div class="flex justify-between">
+                <span class="text-dark">Risk Tier</span>
+                <span class="font-semibold text-darkest">{riskTierLabels[pool.platform_risk_tier]}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Documents */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-darkest">Documents</h3>
+            {canUploadDocs && (
+              <a href={`/lender/pools/${id}/upload`} class="text-primary text-sm font-medium hover:underline">
+                Upload
+              </a>
+            )}
+          </div>
+          {pool.loan_pool_documents && pool.loan_pool_documents.length > 0 ? (
+            <div class="space-y-3">
+              {pool.loan_pool_documents.map((doc: any) => (
+                <a
+                  href={doc.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-3 p-3 bg-lightest rounded-lg hover:bg-light transition-colors no-underline"
+                >
+                  <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-darkest truncate">{doc.file_name}</p>
+                    <p class="text-xs text-medium">{documentTypeLabels[doc.document_type as DocumentType]}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div class="text-center py-6">
+              <svg class="w-8 h-8 text-medium mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <p class="text-sm text-medium">No documents uploaded</p>
+              {canUploadDocs && (
+                <a href={`/lender/pools/${id}/upload`} class="text-primary text-sm font-medium hover:underline mt-2 inline-block">
+                  Upload documents
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Timeline */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Timeline</h3>
+          <div class="space-y-4">
+            <div class="flex gap-3">
+              <div class="w-2 h-2 rounded-full bg-success mt-2"></div>
+              <div>
+                <p class="text-sm font-medium text-darkest">Created</p>
+                <p class="text-xs text-medium">{new Date(pool.created_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+            {pool.submitted_at && (
+              <div class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+                <div>
+                  <p class="text-sm font-medium text-darkest">Submitted</p>
+                  <p class="text-xs text-medium">{new Date(pool.submitted_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+            {pool.reviewed_at && (
+              <div class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
+                <div>
+                  <p class="text-sm font-medium text-darkest">Reviewed</p>
+                  <p class="text-xs text-medium">{new Date(pool.reviewed_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</LenderLayout>

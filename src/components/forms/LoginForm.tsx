@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginFormData } from '../../types/forms';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { Label } from '../ui/Label';
+import { FormField } from '../ui/FormField';
 import { Alert, AlertDescription } from '../ui/Alert';
 
 export function LoginForm() {
@@ -46,55 +46,51 @@ export function LoginForm() {
     }
   };
 
+  // Check if there are any validation errors
+  const hasErrors = Object.keys(errors).length > 0;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      {/* Error summary at top */}
+      {(error || hasErrors) && (
         <Alert variant="error">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error || 'Please fix the errors below'}
+          </AlertDescription>
         </Alert>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="email" required>
-          Email address
-        </Label>
-        {errors.email && (
-          <p className="text-sm text-error flex items-center gap-1">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            {errors.email.message}
-          </p>
-        )}
+      <FormField
+        label="Email address"
+        htmlFor="email"
+        required
+        error={errors.email?.message}
+      >
         <Input
           id="email"
           type="email"
           autoComplete="email"
           error={!!errors.email}
+          aria-describedby={errors.email ? 'email-error' : undefined}
           {...register('email')}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="password" required>
-          Password
-        </Label>
-        {errors.password && (
-          <p className="text-sm text-error flex items-center gap-1">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            {errors.password.message}
-          </p>
-        )}
+      <FormField
+        label="Password"
+        htmlFor="password"
+        required
+        error={errors.password?.message}
+      >
         <Input
           id="password"
           type="password"
           autoComplete="current-password"
           error={!!errors.password}
+          aria-describedby={errors.password ? 'password-error' : undefined}
           {...register('password')}
         />
-      </div>
+      </FormField>
 
       <Button type="submit" fullWidth disabled={isLoading}>
         {isLoading ? 'Logging in...' : 'Log in'}

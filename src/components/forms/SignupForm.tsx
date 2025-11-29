@@ -5,10 +5,11 @@ import { signupSchema, type SignupFormData } from '../../types/forms';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Label } from '../ui/Label';
+import { FormField } from '../ui/FormField';
 import { Alert, AlertDescription } from '../ui/Alert';
 
 interface SignupFormProps {
-  defaultRole?: 'borrower' | 'investor';
+  defaultRole?: 'lender' | 'investor';
 }
 
 export function SignupForm({ defaultRole }: SignupFormProps) {
@@ -56,11 +57,22 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
     }
   };
 
+  // Check if there are any validation errors
+  const hasErrors = Object.keys(errors).length > 0;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      {/* Required fields instruction */}
+      <p className="text-sm text-dark">
+        Required fields are marked with an asterisk <span className="text-error">*</span>
+      </p>
+
+      {/* Error summary at top */}
+      {(error || hasErrors) && (
         <Alert variant="error">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error || 'Please fix the errors below'}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -68,35 +80,36 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
         <div className="space-y-2">
           <Label required>I want to</Label>
           {errors.role && (
-            <p className="text-sm text-error flex items-center gap-1">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <p className="text-sm text-error flex items-center gap-1.5" role="alert">
+              <svg className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               {errors.role.message}
             </p>
           )}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Radio button cards - stacked on mobile for 48pt touch targets */}
+          <div className="grid sm:grid-cols-2 gap-4">
             <label
-              className={`flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                selectedRole === 'borrower'
+              className={`flex flex-col items-center p-6 border-2 rounded-lg cursor-pointer transition-colors min-h-[120px] ${
+                selectedRole === 'lender'
                   ? 'border-primary bg-primary/5'
                   : 'border-light hover:border-medium'
               }`}
             >
               <input
                 type="radio"
-                value="borrower"
+                value="lender"
                 {...register('role')}
                 className="sr-only"
               />
-              <svg className="h-8 w-8 mb-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              <svg className="h-8 w-8 mb-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
               </svg>
-              <span className="font-semibold text-darkest">Apply for credit</span>
-              <span className="text-sm text-dark mt-1">For businesses</span>
+              <span className="font-semibold text-darkest">List loan pools</span>
+              <span className="text-sm text-dark mt-1">For fintech lenders</span>
             </label>
             <label
-              className={`flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+              className={`flex flex-col items-center p-6 border-2 rounded-lg cursor-pointer transition-colors min-h-[120px] ${
                 selectedRole === 'investor'
                   ? 'border-primary bg-primary/5'
                   : 'border-light hover:border-medium'
@@ -108,7 +121,7 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
                 {...register('role')}
                 className="sr-only"
               />
-              <svg className="h-8 w-8 mb-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-8 w-8 mb-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="font-semibold text-darkest">Invest in deals</span>
@@ -118,18 +131,12 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="name" required>
-          Full name
-        </Label>
-        {errors.name && (
-          <p className="text-sm text-error flex items-center gap-1">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            {errors.name.message}
-          </p>
-        )}
+      <FormField
+        label="Full name"
+        htmlFor="name"
+        required
+        error={errors.name?.message}
+      >
         <Input
           id="name"
           type="text"
@@ -137,20 +144,14 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
           error={!!errors.name}
           {...register('name')}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="email" required>
-          Email address
-        </Label>
-        {errors.email && (
-          <p className="text-sm text-error flex items-center gap-1">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            {errors.email.message}
-          </p>
-        )}
+      <FormField
+        label="Email address"
+        htmlFor="email"
+        required
+        error={errors.email?.message}
+      >
         <Input
           id="email"
           type="email"
@@ -158,21 +159,15 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
           error={!!errors.email}
           {...register('email')}
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <Label htmlFor="password" required>
-          Password
-        </Label>
-        <p className="text-sm text-dark">Must be at least 8 characters</p>
-        {errors.password && (
-          <p className="text-sm text-error flex items-center gap-1">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            {errors.password.message}
-          </p>
-        )}
+      <FormField
+        label="Password"
+        htmlFor="password"
+        required
+        hint="Must be at least 8 characters"
+        error={errors.password?.message}
+      >
         <Input
           id="password"
           type="password"
@@ -180,18 +175,11 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
           error={!!errors.password}
           {...register('password')}
         />
-      </div>
+      </FormField>
 
       <Button type="submit" fullWidth disabled={isLoading}>
         {isLoading ? 'Creating account...' : 'Create account'}
       </Button>
-
-      <p className="text-center text-dark">
-        Already have an account?{' '}
-        <a href="/login" className="text-primary font-semibold">
-          Log in
-        </a>
-      </p>
     </form>
   );
 }

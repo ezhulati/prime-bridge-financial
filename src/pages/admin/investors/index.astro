@@ -1,0 +1,124 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { investorTypeLabels, formatCurrency } from '../../../types/database';
+import type { InvestorType } from '../../../types/database';
+
+const user = Astro.locals.user;
+if (!user || user.role !== 'admin') {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get filters from query params
+const url = new URL(Astro.request.url);
+const approvedFilter = url.searchParams.get('approved');
+
+// Build query
+let query = supabase
+  .from('investors')
+  .select('*, users(name, email)')
+  .order('created_at', { ascending: false });
+
+if (approvedFilter === 'true') {
+  query = query.eq('approved', true);
+} else if (approvedFilter === 'false') {
+  query = query.eq('approved', false);
+}
+
+const { data: investors } = await query;
+---
+
+<AdminLayout title="Investors">
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-darkest">Investor Management</h1>
+        <p class="text-dark mt-1">Review and approve investor accreditation</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl border border-light p-4">
+      <div class="flex flex-wrap gap-2">
+        <a
+          href="/admin/investors"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${!approvedFilter ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          All
+        </a>
+        <a
+          href="/admin/investors?approved=false"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${approvedFilter === 'false' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          Pending Approval
+        </a>
+        <a
+          href="/admin/investors?approved=true"
+          class={`inline-flex items-center px-4 py-2 rounded-md text-sm font-medium no-underline transition-colors ${approvedFilter === 'true' ? 'bg-primary text-white' : 'bg-lightest text-dark hover:bg-light'}`}
+        >
+          Approved
+        </a>
+      </div>
+    </div>
+
+    <!-- Investors List -->
+    <div class="bg-white rounded-xl border border-light overflow-hidden">
+      {investors && investors.length > 0 ? (
+        <div class="divide-y divide-light">
+          {investors.map((investor) => (
+            <a href={`/admin/investors/${investor.id}`} class="block p-6 hover:bg-lightest transition-colors no-underline">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-3 mb-2">
+                    <h3 class="font-semibold text-darkest truncate text-lg">
+                      {investor.users?.name || investor.firm_name || 'Unnamed Investor'}
+                    </h3>
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${investor.approved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {investor.approved ? 'Approved' : 'Pending'}
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-lightest text-dark">
+                      {investorTypeLabels[investor.investor_type as InvestorType]}
+                    </span>
+                  </div>
+                  <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-dark">
+                    <span>{investor.users?.email}</span>
+                    {investor.firm_name && <span>{investor.firm_name}</span>}
+                    <span>Joined {new Date(investor.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-6">
+                  <div class="text-right">
+                    <p class="font-semibold text-darkest">{investor.total_deals}</p>
+                    <p class="text-xs text-dark">Deals</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-semibold text-darkest">{formatCurrency(investor.total_invested)}</p>
+                    <p class="text-xs text-dark">Invested</p>
+                  </div>
+                  <svg class="w-5 h-5 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="p-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-lightest mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-8 h-8 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-darkest mb-2">No investors found</h3>
+          <p class="text-dark max-w-sm mx-auto">
+            {approvedFilter ? 'No investors match this filter.' : 'No investors have registered yet.'}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>

@@ -1,7 +1,7 @@
 ---
 import InvestorLayout from '../../layouts/InvestorLayout.astro';
 import { createSupabaseServerClient } from '../../lib/supabase';
-import { formatCurrency } from '../../lib/utils';
+import { formatCurrency, riskTierLabels, getRiskTierColor, loanTypeLabels, commitmentStatusLabels } from '../../types/database';
 
 const user = Astro.locals.user;
 if (!user) {
@@ -17,86 +17,299 @@ const { data: investor } = await supabase
   .eq('user_id', user.id)
   .single();
 
-// Get published deals count
-const { count: dealsCount } = await supabase
+// Get available deals (published, not yet fully funded)
+const { data: availableDeals } = await supabase
   .from('deals')
-  .select('*', { count: 'exact', head: true })
-  .eq('published', true);
+  .select('*, lenders(company_name)')
+  .in('status', ['published', 'fully_committed'])
+  .order('published_at', { ascending: false })
+  .limit(5);
 
-// Get investor's interests
-const { data: interests } = await supabase
-  .from('investor_interest')
+// Get investor's commitments
+const { data: commitments } = await supabase
+  .from('deal_commitments')
   .select('*, deals(*)')
-  .eq('investor_id', investor?.id);
+  .eq('investor_id', investor?.id)
+  .order('created_at', { ascending: false });
 
-const totalIndicated = interests?.reduce((sum, i) => sum + (i.amount_indicated || 0), 0) || 0;
+const availableCount = availableDeals?.length || 0;
+const activeCommitments = commitments?.filter(c => ['pending', 'confirmed', 'funded'].includes(c.status)).length || 0;
+const totalCommitted = commitments?.reduce((sum, c) => sum + (c.amount || 0), 0) || 0;
+const totalReturns = commitments?.reduce((sum, c) => sum + (c.interest_earned || 0), 0) || 0;
+
+const statusColors: Record<string, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  funded: 'bg-green-100 text-green-700',
+  withdrawn: 'bg-gray-100 text-gray-700',
+  returned: 'bg-purple-100 text-purple-700',
+};
 ---
 
 <InvestorLayout title="Investor Dashboard">
   <div class="space-y-8">
     <!-- Welcome Section -->
-    <div class="bg-white rounded-lg border border-light p-6">
-      <h2 class="text-xl font-semibold text-darkest mb-2">
-        Welcome back, {user.name || 'Investor'}!
-      </h2>
-      <p class="text-dark">
-        Browse available deals and indicate your interest in funding opportunities.
-      </p>
+    <div class="bg-white rounded-xl border border-light p-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-darkest mb-2">
+            Welcome back, {user.name || 'Investor'}!
+          </h1>
+          <p class="text-dark">
+            {investor?.approved
+              ? 'Browse loan pool deals and manage your portfolio.'
+              : 'Your account is pending accreditation verification.'
+            }
+          </p>
+        </div>
+        {investor?.approved && (
+          <a
+            href="/investor/deals"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline whitespace-nowrap"
+          >
+            Browse deals
+          </a>
+        )}
+      </div>
+
+      {investor && !investor.approved && (
+        <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div class="flex gap-3">
+            <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <p class="font-medium text-amber-800">Accreditation Required</p>
+              <p class="text-sm text-amber-700 mt-1">
+                Complete your investor profile and upload accreditation documents to access the deal room.
+              </p>
+              <a href="/investor/profile" class="inline-flex items-center text-sm font-semibold text-amber-800 mt-2 hover:underline">
+                Complete profile
+                <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
 
     <!-- Stats -->
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="bg-white rounded-lg border border-light p-6">
-        <p class="text-sm font-medium text-dark uppercase tracking-wide">Available deals</p>
-        <p class="text-3xl font-bold text-darkest mt-2">{dealsCount || 0}</p>
-      </div>
-      <div class="bg-white rounded-lg border border-light p-6">
-        <p class="text-sm font-medium text-dark uppercase tracking-wide">Your interests</p>
-        <p class="text-3xl font-bold text-darkest mt-2">{interests?.length || 0}</p>
-      </div>
-      <div class="bg-white rounded-lg border border-light p-6">
-        <p class="text-sm font-medium text-dark uppercase tracking-wide">Total indicated</p>
-        <p class="text-3xl font-bold text-darkest mt-2">{formatCurrency(totalIndicated)}</p>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="bg-white rounded-lg border border-light p-6">
-      <h3 class="text-lg font-semibold text-darkest mb-4">Quick actions</h3>
-      <div class="flex flex-wrap gap-4">
-        <a
-          href="/deals"
-          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-5 rounded-md font-semibold no-underline text-sm"
-        >
-          Browse deals
-        </a>
-      </div>
-    </div>
-
-    <!-- Recent Interests -->
-    {interests && interests.length > 0 && (
-      <div class="bg-white rounded-lg border border-light">
-        <div class="p-6 border-b border-light">
-          <h3 class="text-lg font-semibold text-darkest">Your recent interests</h3>
+    <div class="grid md:grid-cols-4 gap-6">
+      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-dark">Available Deals</p>
+            <p class="text-3xl font-bold text-darkest">{availableCount}</p>
+          </div>
         </div>
+      </div>
+      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-info/10 flex items-center justify-center">
+            <svg class="w-6 h-6 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-dark">Active Commitments</p>
+            <p class="text-3xl font-bold text-darkest">{activeCommitments}</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+            <svg class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-dark">Total Committed</p>
+            <p class="text-3xl font-bold text-darkest">{formatCurrency(totalCommitted)}</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-light p-6 card-hover">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
+            <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-dark">Interest Earned</p>
+            <p class="text-3xl font-bold text-darkest">{formatCurrency(totalReturns)}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Available Deals Preview -->
+    {investor?.approved && (
+      <div class="bg-white rounded-xl border border-light overflow-hidden">
+        <div class="p-6 border-b border-light flex items-center justify-between">
+          <h2 class="text-lg font-bold text-darkest">Featured Deals</h2>
+          <a href="/investor/deals" class="text-primary font-medium text-sm hover:underline">
+            View all deals
+          </a>
+        </div>
+
+        {availableDeals && availableDeals.length > 0 ? (
+          <div class="divide-y divide-light">
+            {availableDeals.map((deal) => (
+              <div class="p-6 hover:bg-lightest transition-colors">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="font-semibold text-darkest">{deal.title}</h3>
+                      <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRiskTierColor(deal.risk_tier)}`}>
+                        {riskTierLabels[deal.risk_tier]}
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-dark">
+                      <span>{deal.lenders?.company_name}</span>
+                      <span>{loanTypeLabels[deal.loan_type]}</span>
+                      <span>{deal.total_loans} loans</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-6">
+                    <div class="text-right">
+                      <p class="text-2xl font-bold text-primary">{deal.target_yield}%</p>
+                      <p class="text-xs text-dark">Target yield</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-lg font-semibold text-darkest">{formatCurrency(deal.total_amount)}</p>
+                      <p class="text-xs text-dark">{deal.term_months} months</p>
+                    </div>
+                    <a
+                      href={`/investor/deals/${deal.id}`}
+                      class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-4 rounded-md font-medium no-underline text-sm"
+                    >
+                      View deal
+                    </a>
+                  </div>
+                </div>
+                <!-- Funding progress bar -->
+                <div class="mt-4">
+                  <div class="flex justify-between text-xs text-dark mb-1">
+                    <span>{formatCurrency(deal.amount_committed)} committed</span>
+                    <span>{Math.round((deal.amount_committed / deal.total_amount) * 100)}% funded</span>
+                  </div>
+                  <div class="h-2 bg-lightest rounded-full overflow-hidden">
+                    <div
+                      class="h-full bg-primary rounded-full transition-all"
+                      style={`width: ${Math.min((deal.amount_committed / deal.total_amount) * 100, 100)}%`}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="p-12 text-center">
+            <div class="w-16 h-16 rounded-full bg-lightest mx-auto mb-4 flex items-center justify-center">
+              <svg class="w-8 h-8 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-darkest mb-2">No deals available</h3>
+            <p class="text-dark max-w-sm mx-auto">
+              Check back soon for new loan pool deals from our vetted fintech lenders.
+            </p>
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Recent Commitments -->
+    <div class="bg-white rounded-xl border border-light overflow-hidden">
+      <div class="p-6 border-b border-light flex items-center justify-between">
+        <h2 class="text-lg font-bold text-darkest">Your Commitments</h2>
+        {commitments && commitments.length > 0 && (
+          <a href="/investor/portfolio" class="text-primary font-medium text-sm hover:underline">
+            View portfolio
+          </a>
+        )}
+      </div>
+
+      {commitments && commitments.length > 0 ? (
         <div class="divide-y divide-light">
-          {interests.slice(0, 5).map((interest) => (
-            <div class="p-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="font-semibold text-darkest">{interest.deals?.title}</h4>
+          {commitments.slice(0, 5).map((commitment) => (
+            <div class="p-6 hover:bg-lightest transition-colors">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex-1">
+                  <h3 class="font-semibold text-darkest">{commitment.deals?.title}</h3>
                   <p class="text-dark text-sm mt-1">
-                    Indicated: {formatCurrency(interest.amount_indicated)}
+                    {formatCurrency(commitment.amount)} committed
+                    {commitment.interest_earned > 0 && ` · ${formatCurrency(commitment.interest_earned)} earned`}
                   </p>
                 </div>
-                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 capitalize">
-                  {interest.status}
+                <span class={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${statusColors[commitment.status] || 'bg-gray-100 text-gray-700'}`}>
+                  {commitmentStatusLabels[commitment.status]}
                 </span>
               </div>
             </div>
           ))}
         </div>
+      ) : (
+        <div class="p-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-lightest mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-8 h-8 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-darkest mb-2">No commitments yet</h3>
+          <p class="text-dark max-w-sm mx-auto mb-6">
+            {investor?.approved
+              ? 'Browse available deals and commit capital to start building your portfolio.'
+              : 'Complete your accreditation to access deals and make commitments.'
+            }
+          </p>
+          {investor?.approved ? (
+            <a
+              href="/investor/deals"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+            >
+              Browse deals
+            </a>
+          ) : (
+            <a
+              href="/investor/profile"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+            >
+              Complete profile
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-lightest rounded-xl border border-light p-6">
+      <div class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-semibold text-darkest mb-1">Questions about a deal?</h3>
+          <p class="text-dark text-sm">Our investor relations team can provide additional loan tape data and answer your questions.</p>
+        </div>
+        <a
+          href="mailto:investors@primebridge.com"
+          class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline text-sm whitespace-nowrap"
+        >
+          Contact investor relations
+        </a>
       </div>
-    )}
+    </div>
   </div>
 </InvestorLayout>

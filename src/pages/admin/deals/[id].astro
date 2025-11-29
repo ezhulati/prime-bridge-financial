@@ -1,0 +1,373 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { dealStatusLabels, loanTypeLabels, riskTierLabels, getRiskTierColor, formatCurrency, commitmentStatusLabels } from '../../../types/database';
+import type { DealStatus, RiskTier, LoanType, CommitmentStatus } from '../../../types/database';
+
+const { id } = Astro.params;
+const user = Astro.locals.user;
+
+if (!user || user.role !== 'admin') {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get deal with related data
+const { data: deal } = await supabase
+  .from('deals')
+  .select('*, lenders(company_name, risk_tier), loan_pools(pool_name, total_principal, total_outstanding_balance)')
+  .eq('id', id)
+  .single();
+
+if (!deal) {
+  return Astro.redirect('/admin/deals');
+}
+
+// Get commitments
+const { data: commitments } = await supabase
+  .from('deal_commitments')
+  .select('*, investors(firm_name, users(name, email))')
+  .eq('deal_id', id)
+  .order('created_at', { ascending: false });
+
+const statusColors: Record<DealStatus, string> = {
+  draft: 'bg-gray-100 text-gray-700',
+  published: 'bg-green-100 text-green-700',
+  fully_committed: 'bg-blue-100 text-blue-700',
+  funding: 'bg-amber-100 text-amber-700',
+  funded: 'bg-purple-100 text-purple-700',
+  performing: 'bg-indigo-100 text-indigo-700',
+  completed: 'bg-gray-100 text-gray-700',
+  defaulted: 'bg-red-100 text-red-700',
+};
+
+const commitmentStatusColors: Record<CommitmentStatus, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  funded: 'bg-green-100 text-green-700',
+  withdrawn: 'bg-gray-100 text-gray-700',
+  returned: 'bg-purple-100 text-purple-700',
+};
+
+const canPublish = deal.status === 'draft';
+const canUnpublish = deal.status === 'published';
+const remainingAmount = deal.total_amount - deal.amount_committed;
+---
+
+<AdminLayout title={deal.title}>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/admin/deals" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to deals
+      </a>
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-2xl font-bold text-darkest">{deal.title}</h1>
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColors[deal.status as DealStatus]}`}>
+              {dealStatusLabels[deal.status as DealStatus]}
+            </span>
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getRiskTierColor(deal.risk_tier as RiskTier)}`}>
+              {riskTierLabels[deal.risk_tier as RiskTier]}
+            </span>
+          </div>
+          <p class="text-dark">
+            Lender: <a href={`/admin/lenders/${deal.lender_id}`} class="font-medium text-primary hover:underline">{deal.lenders?.company_name}</a>
+            {deal.loan_pools && (
+              <> &bull; Pool: <a href={`/admin/pools/${deal.loan_pool_id}`} class="font-medium text-primary hover:underline">{deal.loan_pools.pool_name}</a></>
+            )}
+          </p>
+        </div>
+        <div class="flex gap-3">
+          {canPublish && (
+            <form action={`/api/admin/deals/${id}/publish`} method="POST">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center bg-success text-white hover:bg-success/90 min-h-[48px] px-6 rounded-md font-semibold transition-colors"
+              >
+                Publish Deal
+              </button>
+            </form>
+          )}
+          {canUnpublish && (
+            <form action={`/api/admin/deals/${id}/unpublish`} method="POST">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center bg-amber-500 text-white hover:bg-amber-600 min-h-[48px] px-6 rounded-md font-semibold transition-colors"
+              >
+                Unpublish
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="bg-white rounded-xl border border-light p-6">
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-6">
+        <div class="text-center">
+          <p class="text-3xl font-bold text-primary">{deal.target_yield}%</p>
+          <p class="text-sm text-dark font-medium">Target Yield</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{formatCurrency(deal.total_amount)}</p>
+          <p class="text-sm text-dark font-medium">Deal Size</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{formatCurrency(deal.amount_committed)}</p>
+          <p class="text-sm text-dark font-medium">Committed</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{formatCurrency(deal.amount_funded)}</p>
+          <p class="text-sm text-dark font-medium">Funded</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{deal.investor_count}</p>
+          <p class="text-sm text-dark font-medium">Investors</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{deal.term_months} mo</p>
+          <p class="text-sm text-dark font-medium">Term</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funding Progress -->
+    <div class="bg-white rounded-xl border border-light p-6">
+      <h2 class="text-lg font-bold text-darkest mb-4">Funding Progress</h2>
+      <div class="flex justify-between text-sm text-dark mb-2">
+        <span>{formatCurrency(deal.amount_committed)} committed</span>
+        <span>{formatCurrency(remainingAmount)} remaining</span>
+      </div>
+      <div class="h-4 bg-lightest rounded-full overflow-hidden">
+        <div
+          class="h-full bg-primary rounded-full transition-all"
+          style={`width: ${Math.min((deal.amount_committed / deal.total_amount) * 100, 100)}%`}
+        />
+      </div>
+      <p class="text-sm text-dark mt-2">{Math.round((deal.amount_committed / deal.total_amount) * 100)}% funded</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        {/* Deal Details */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Deal Details</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Loan Type</p>
+              <p class="font-semibold text-darkest">{loanTypeLabels[deal.loan_type as LoanType]}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Total Loans</p>
+              <p class="font-semibold text-darkest">{deal.total_loans.toLocaleString()}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Minimum Investment</p>
+              <p class="font-semibold text-darkest">{formatCurrency(deal.minimum_investment)}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Payment Frequency</p>
+              <p class="font-semibold text-darkest capitalize">{deal.payment_frequency}</p>
+            </div>
+            {deal.weighted_avg_fico && (
+              <div>
+                <p class="text-sm text-medium mb-1">Avg FICO</p>
+                <p class="font-semibold text-darkest">{deal.weighted_avg_fico}</p>
+              </div>
+            )}
+            {deal.expected_loss !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Expected Loss</p>
+                <p class="font-semibold text-darkest">{(deal.expected_loss * 100).toFixed(2)}%</p>
+              </div>
+            )}
+          </div>
+          {deal.description && (
+            <div class="mt-6 pt-6 border-t border-light">
+              <p class="text-sm text-medium mb-2">Description</p>
+              <p class="text-dark whitespace-pre-wrap">{deal.description}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Fees */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Fee Structure</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Platform Fee</p>
+              <p class="font-semibold text-darkest">{deal.platform_fee_percent}%</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Servicing Fee</p>
+              <p class="font-semibold text-darkest">{deal.servicing_fee_percent}%</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Net Yield to Investor</p>
+              <p class="font-semibold text-success">{(deal.target_yield - deal.platform_fee_percent - deal.servicing_fee_percent).toFixed(2)}%</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Commitments */}
+        <div class="bg-white rounded-xl border border-light overflow-hidden">
+          <div class="p-6 border-b border-light">
+            <h2 class="text-lg font-bold text-darkest">Investor Commitments ({commitments?.length || 0})</h2>
+          </div>
+          {commitments && commitments.length > 0 ? (
+            <div class="divide-y divide-light">
+              {commitments.map((commitment) => (
+                <div class="p-4 hover:bg-lightest transition-colors">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-3 mb-1">
+                        <a href={`/admin/investors/${commitment.investor_id}`} class="font-semibold text-darkest hover:text-primary">
+                          {commitment.investors?.users?.name || commitment.investors?.firm_name || 'Unknown'}
+                        </a>
+                        <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${commitmentStatusColors[commitment.status as CommitmentStatus]}`}>
+                          {commitmentStatusLabels[commitment.status as CommitmentStatus]}
+                        </span>
+                      </div>
+                      <p class="text-sm text-dark">
+                        {commitment.investors?.users?.email} &bull; Committed: {new Date(commitment.commitment_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-6">
+                      <div class="text-right">
+                        <p class="font-semibold text-darkest">{formatCurrency(commitment.amount)}</p>
+                        <p class="text-xs text-dark">Amount</p>
+                      </div>
+                      <div class="text-right">
+                        <p class="font-semibold text-success">{formatCurrency(commitment.interest_earned)}</p>
+                        <p class="text-xs text-dark">Interest</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="p-8 text-center">
+              <p class="text-dark">No commitments yet</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        {/* Status Actions */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Deal Status</h3>
+          <form action={`/api/admin/deals/${id}/status`} method="POST">
+            <select
+              name="status"
+              class="w-full min-h-[44px] px-4 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              <option value="draft" selected={deal.status === 'draft'}>Draft</option>
+              <option value="published" selected={deal.status === 'published'}>Published</option>
+              <option value="fully_committed" selected={deal.status === 'fully_committed'}>Fully Committed</option>
+              <option value="funding" selected={deal.status === 'funding'}>Funding in Progress</option>
+              <option value="funded" selected={deal.status === 'funded'}>Funded</option>
+              <option value="performing" selected={deal.status === 'performing'}>Performing</option>
+              <option value="completed" selected={deal.status === 'completed'}>Completed</option>
+              <option value="defaulted" selected={deal.status === 'defaulted'}>Defaulted</option>
+            </select>
+            <button
+              type="submit"
+              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-md font-semibold transition-colors"
+            >
+              Update Status
+            </button>
+          </form>
+        </div>
+
+        {/* Documents */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Documents</h3>
+          <div class="space-y-3">
+            {deal.credit_memo_url ? (
+              <a
+                href={deal.credit_memo_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-3 p-3 bg-lightest rounded-lg hover:bg-light transition-colors no-underline"
+              >
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="text-sm font-medium text-darkest">Credit Memo</span>
+              </a>
+            ) : (
+              <p class="text-sm text-medium">No credit memo uploaded</p>
+            )}
+            {deal.term_sheet_url ? (
+              <a
+                href={deal.term_sheet_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-3 p-3 bg-lightest rounded-lg hover:bg-light transition-colors no-underline"
+              >
+                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="text-sm font-medium text-darkest">Term Sheet</span>
+              </a>
+            ) : (
+              <p class="text-sm text-medium">No term sheet uploaded</p>
+            )}
+          </div>
+        </div>
+
+        {/* Timeline */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Timeline</h3>
+          <div class="space-y-4">
+            <div class="flex gap-3">
+              <div class="w-2 h-2 rounded-full bg-success mt-2"></div>
+              <div>
+                <p class="text-sm font-medium text-darkest">Created</p>
+                <p class="text-xs text-medium">{new Date(deal.created_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+            {deal.published_at && (
+              <div class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
+                <div>
+                  <p class="text-sm font-medium text-darkest">Published</p>
+                  <p class="text-xs text-medium">{new Date(deal.published_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+            {deal.funding_deadline && (
+              <div class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-amber-500 mt-2"></div>
+                <div>
+                  <p class="text-sm font-medium text-darkest">Funding Deadline</p>
+                  <p class="text-xs text-medium">{new Date(deal.funding_deadline).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+            {deal.funded_at && (
+              <div class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
+                <div>
+                  <p class="text-sm font-medium text-darkest">Funded</p>
+                  <p class="text-xs text-medium">{new Date(deal.funded_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

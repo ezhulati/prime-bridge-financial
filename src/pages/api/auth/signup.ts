@@ -62,13 +62,32 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    // If investor, create investor profile
-    if (role === 'investor') {
+    // Create role-specific profile
+    if (role === 'lender') {
+      const { error: lenderError } = await adminClient
+        .from('lenders')
+        .insert({
+          user_id: userData.id,
+          company_name: name, // Use name as initial company name, they'll update later
+          primary_contact_name: name,
+          primary_contact_email: email,
+          loan_types: [],
+          status: 'pending',
+        });
+
+      if (lenderError) {
+        console.error('Failed to create lender profile:', lenderError);
+      }
+    } else if (role === 'investor') {
       const { error: investorError } = await adminClient
         .from('investors')
         .insert({
           user_id: userData.id,
+          investor_type: 'individual',
+          accreditation_status: 'pending',
           approved: false,
+          total_invested: 0,
+          total_deals: 0,
         });
 
       if (investorError) {
@@ -77,9 +96,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Determine redirect URL based on role
-    let redirectUrl = '/dashboard';
+    let redirectUrl = '/lender/dashboard';
     if (role === 'investor') {
       redirectUrl = '/investor/pending';
+    } else if (role === 'lender') {
+      redirectUrl = '/lender/dashboard';
     }
 
     return new Response(

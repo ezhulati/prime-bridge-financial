@@ -7,6 +7,20 @@ interface Props {
 }
 
 const { user, showNav = true } = Astro.props;
+
+// Determine dashboard URL based on user role
+const getDashboardUrl = (role: string) => {
+  switch (role) {
+    case 'lender':
+      return '/lender/dashboard';
+    case 'investor':
+      return '/investor/dashboard';
+    case 'admin':
+      return '/admin';
+    default:
+      return '/';
+  }
+};
 ---
 
 <header class="border-b border-light bg-white">
@@ -14,22 +28,25 @@ const { user, showNav = true } = Astro.props;
     <div class="flex h-16 items-center justify-between">
       <!-- Logo -->
       <div class="flex items-center">
-        <a href="/" class="flex items-center gap-2 no-underline">
-          <span class="text-xl font-bold text-primary">PrimeBridge</span>
-          <span class="text-xl font-normal text-darkest">Finance</span>
+        <a href="/" class="flex items-center no-underline">
+          <img
+            src="/logo.png"
+            alt="PrimeBridge Finance"
+            class="h-10 w-auto"
+          />
         </a>
       </div>
 
       <!-- Navigation -->
       {showNav && (
         <nav class="hidden md:flex items-center gap-8">
-          <a href="/#how-it-works" class="text-dark hover:text-darkest no-underline">
+          <a href="/#how-it-works" class="text-dark hover:text-darkest no-underline font-medium">
             How it works
           </a>
-          <a href="/#for-businesses" class="text-dark hover:text-darkest no-underline">
-            For Businesses
+          <a href="/#for-lenders" class="text-dark hover:text-darkest no-underline font-medium">
+            For Lenders
           </a>
-          <a href="/#for-investors" class="text-dark hover:text-darkest no-underline">
+          <a href="/#for-investors" class="text-dark hover:text-darkest no-underline font-medium">
             For Investors
           </a>
         </nav>
@@ -39,11 +56,16 @@ const { user, showNav = true } = Astro.props;
       <div class="flex items-center gap-4">
         {user ? (
           <div class="flex items-center gap-4">
-            <span class="text-dark text-sm">{user.email}</span>
+            <a
+              href={getDashboardUrl(user.role)}
+              class="text-dark hover:text-darkest no-underline font-medium"
+            >
+              Dashboard
+            </a>
             <form action="/api/auth/logout" method="POST">
               <button
                 type="submit"
-                class="text-primary underline underline-offset-2 hover:text-primary-hover"
+                class="text-primary font-medium hover:text-primary-hover"
               >
                 Log out
               </button>
@@ -53,15 +75,21 @@ const { user, showNav = true } = Astro.props;
           <>
             <a
               href="/login"
-              class="text-primary underline underline-offset-2 hover:text-primary-hover"
+              class="text-dark hover:text-darkest no-underline font-medium"
             >
               Log in
             </a>
             <a
-              href="/apply"
+              href="/investor/register"
+              class="hidden sm:inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline"
+            >
+              Invest
+            </a>
+            <a
+              href="/lender/register"
               class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-5 rounded-md font-semibold no-underline"
             >
-              Apply for financing
+              List Loan Pools
             </a>
           </>
         )}

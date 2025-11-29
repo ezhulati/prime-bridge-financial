@@ -1,0 +1,269 @@
+---
+import InvestorLayout from '../../../layouts/InvestorLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { formatCurrency, riskTierLabels, getRiskTierColor, loanTypeLabels, dealStatusLabels } from '../../../types/database';
+import type { RiskTier, LoanType, DealStatus } from '../../../types/database';
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get investor profile
+const { data: investor } = await supabase
+  .from('investors')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+// Redirect if not approved
+if (!investor?.approved) {
+  return Astro.redirect('/investor/pending');
+}
+
+// Get filters from query params
+const url = new URL(Astro.request.url);
+const loanTypeFilter = url.searchParams.get('loan_type');
+const riskTierFilter = url.searchParams.get('risk_tier');
+const sortBy = url.searchParams.get('sort') || 'published_at';
+
+// Build query
+let query = supabase
+  .from('deals')
+  .select('*, lenders(company_name, risk_tier)')
+  .in('status', ['published', 'fully_committed']);
+
+if (loanTypeFilter) {
+  query = query.eq('loan_type', loanTypeFilter);
+}
+
+if (riskTierFilter) {
+  query = query.eq('risk_tier', riskTierFilter);
+}
+
+// Apply sorting
+if (sortBy === 'yield') {
+  query = query.order('target_yield', { ascending: false });
+} else if (sortBy === 'amount') {
+  query = query.order('total_amount', { ascending: false });
+} else if (sortBy === 'term') {
+  query = query.order('term_months', { ascending: true });
+} else {
+  query = query.order('published_at', { ascending: false });
+}
+
+const { data: deals } = await query;
+
+const statusColors: Record<DealStatus, string> = {
+  draft: 'bg-gray-100 text-gray-700',
+  published: 'bg-green-100 text-green-700',
+  fully_committed: 'bg-blue-100 text-blue-700',
+  funding: 'bg-amber-100 text-amber-700',
+  funded: 'bg-purple-100 text-purple-700',
+  performing: 'bg-indigo-100 text-indigo-700',
+  completed: 'bg-gray-100 text-gray-700',
+  defaulted: 'bg-red-100 text-red-700',
+};
+---
+
+<InvestorLayout title="Available Deals">
+  <div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-darkest">Deal Room</h1>
+        <p class="text-dark mt-1">Browse available loan pool deals from vetted fintech lenders</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl border border-light p-6">
+      <form method="GET" class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-dark mb-2">Loan Type</label>
+          <select
+            name="loan_type"
+            class="w-full min-h-[44px] px-4 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          >
+            <option value="">All loan types</option>
+            <option value="consumer" selected={loanTypeFilter === 'consumer'}>Consumer Loans</option>
+            <option value="auto" selected={loanTypeFilter === 'auto'}>Auto Loans</option>
+            <option value="bnpl" selected={loanTypeFilter === 'bnpl'}>Buy Now Pay Later</option>
+            <option value="medical" selected={loanTypeFilter === 'medical'}>Medical Financing</option>
+            <option value="sme" selected={loanTypeFilter === 'sme'}>SME/Business Loans</option>
+          </select>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-dark mb-2">Risk Tier</label>
+          <select
+            name="risk_tier"
+            class="w-full min-h-[44px] px-4 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          >
+            <option value="">All risk tiers</option>
+            <option value="A" selected={riskTierFilter === 'A'}>A - Prime</option>
+            <option value="B" selected={riskTierFilter === 'B'}>B - Near Prime</option>
+            <option value="C" selected={riskTierFilter === 'C'}>C - Subprime</option>
+            <option value="D" selected={riskTierFilter === 'D'}>D - Deep Subprime</option>
+          </select>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-dark mb-2">Sort By</label>
+          <select
+            name="sort"
+            class="w-full min-h-[44px] px-4 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          >
+            <option value="published_at" selected={sortBy === 'published_at'}>Newest First</option>
+            <option value="yield" selected={sortBy === 'yield'}>Highest Yield</option>
+            <option value="amount" selected={sortBy === 'amount'}>Largest Amount</option>
+            <option value="term" selected={sortBy === 'term'}>Shortest Term</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-6 rounded-md font-semibold"
+        >
+          Apply Filters
+        </button>
+        {(loanTypeFilter || riskTierFilter || sortBy !== 'published_at') && (
+          <a
+            href="/investor/deals"
+            class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[44px] px-4 rounded-md font-medium no-underline"
+          >
+            Clear
+          </a>
+        )}
+      </form>
+    </div>
+
+    <!-- Deals List -->
+    <div class="space-y-6">
+      {deals && deals.length > 0 ? (
+        deals.map((deal) => (
+          <div class="bg-white rounded-xl border border-light overflow-hidden hover:shadow-md transition-shadow">
+            <div class="p-6">
+              <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                <!-- Deal Info -->
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-3">
+                    <h2 class="text-xl font-bold text-darkest">{deal.title}</h2>
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${getRiskTierColor(deal.risk_tier as RiskTier)}`}>
+                      {riskTierLabels[deal.risk_tier as RiskTier]}
+                    </span>
+                    {deal.status === 'fully_committed' && (
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                        Fully Committed
+                      </span>
+                    )}
+                  </div>
+
+                  <p class="text-dark mb-4 line-clamp-2">{deal.description}</p>
+
+                  <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                    <div class="flex items-center gap-2 text-dark">
+                      <svg class="w-4 h-4 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      <span>{deal.lenders?.company_name}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-dark">
+                      <svg class="w-4 h-4 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>{loanTypeLabels[deal.loan_type as LoanType]}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-dark">
+                      <svg class="w-4 h-4 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <span>{deal.total_loans.toLocaleString()} loans</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-dark">
+                      <svg class="w-4 h-4 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{deal.term_months} months</span>
+                    </div>
+                    {deal.weighted_avg_fico && (
+                      <div class="flex items-center gap-2 text-dark">
+                        <svg class="w-4 h-4 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span>Avg FICO: {deal.weighted_avg_fico}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="flex items-center gap-8">
+                  <div class="text-center">
+                    <p class="text-3xl font-bold text-primary">{deal.target_yield}%</p>
+                    <p class="text-xs text-dark font-medium">Target Yield</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-2xl font-bold text-darkest">{formatCurrency(deal.total_amount)}</p>
+                    <p class="text-xs text-dark font-medium">Deal Size</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-lg font-semibold text-dark">{formatCurrency(deal.minimum_investment)}</p>
+                    <p class="text-xs text-dark font-medium">Min. Investment</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress & CTA -->
+              <div class="mt-6 pt-6 border-t border-light">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="flex justify-between text-sm text-dark mb-2">
+                      <span>{formatCurrency(deal.amount_committed)} committed</span>
+                      <span>{Math.round((deal.amount_committed / deal.total_amount) * 100)}% funded</span>
+                    </div>
+                    <div class="h-3 bg-lightest rounded-full overflow-hidden">
+                      <div
+                        class="h-full bg-primary rounded-full transition-all"
+                        style={`width: ${Math.min((deal.amount_committed / deal.total_amount) * 100, 100)}%`}
+                      />
+                    </div>
+                    <p class="text-xs text-medium mt-2">{deal.investor_count} investor{deal.investor_count !== 1 ? 's' : ''} committed</p>
+                  </div>
+                  <a
+                    href={`/investor/deals/${deal.id}`}
+                    class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-8 rounded-md font-semibold no-underline"
+                  >
+                    View Deal
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div class="bg-white rounded-xl border border-light p-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-lightest mx-auto mb-4 flex items-center justify-center">
+            <svg class="w-8 h-8 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-darkest mb-2">No deals found</h3>
+          <p class="text-dark max-w-sm mx-auto mb-6">
+            {loanTypeFilter || riskTierFilter
+              ? 'Try adjusting your filters to see more deals.'
+              : 'Check back soon for new loan pool deals from our vetted fintech lenders.'
+            }
+          </p>
+          {(loanTypeFilter || riskTierFilter) && (
+            <a
+              href="/investor/deals"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+            >
+              Clear filters
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</InvestorLayout>

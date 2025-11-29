@@ -1,0 +1,65 @@
+---
+import LenderLayout from '../../../layouts/LenderLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { LoanPoolForm } from '../../../components/forms/LoanPoolForm';
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get lender profile
+const { data: lender } = await supabase
+  .from('lenders')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+// Must be an approved lender to submit pools
+if (!lender || lender.status !== 'approved') {
+  return Astro.redirect('/lender/dashboard');
+}
+---
+
+<LenderLayout title="Submit New Pool">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/lender/pools" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to pools
+      </a>
+      <h1 class="text-2xl font-bold text-darkest">Submit New Loan Pool</h1>
+      <p class="text-dark mt-2">
+        Provide details about your loan pool. After submission, our team will review and prepare it for investors.
+      </p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="bg-lightest rounded-xl border border-light p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">1</div>
+          <span class="font-medium text-darkest">Pool details</span>
+        </div>
+        <div class="hidden sm:block flex-1 h-px bg-light mx-4"></div>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-light text-medium flex items-center justify-center text-sm font-bold">2</div>
+          <span class="font-medium text-medium">Upload documents</span>
+        </div>
+        <div class="hidden sm:block flex-1 h-px bg-light mx-4"></div>
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-light text-medium flex items-center justify-center text-sm font-bold">3</div>
+          <span class="font-medium text-medium">Submit for review</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <LoanPoolForm client:load lenderId={lender.id} />
+  </div>
+</LenderLayout>

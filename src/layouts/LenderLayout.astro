@@ -9,6 +9,7 @@ interface Props {
 const { title } = Astro.props;
 const user = Astro.locals.user;
 const currentPath = Astro.url.pathname;
+const fullTitle = `${title} | PrimeBridge Finance`;
 ---
 
 <!doctype html>
@@ -16,12 +17,15 @@ const currentPath = Astro.url.pathname;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} | PrimeBridge Finance</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="theme-color" content="#1B365D" />
+    <title>{fullTitle}</title>
   </head>
   <body class="min-h-screen bg-lightest antialiased">
     <div class="flex">
-      <Sidebar role="borrower" currentPath={currentPath} />
+      <Sidebar role="lender" currentPath={currentPath} />
 
       <main class="flex-1">
         <!-- Top bar -->

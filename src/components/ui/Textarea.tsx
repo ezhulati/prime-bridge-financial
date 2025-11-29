@@ -10,6 +10,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, error, ...props }, ref) => {
     return (
       <textarea
+        aria-invalid={error ? 'true' : undefined}
         className={cn(
           // Base styles following design system
           'flex w-full rounded-md border bg-white px-4 py-3 text-base text-darkest',

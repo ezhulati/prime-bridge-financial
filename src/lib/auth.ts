@@ -62,8 +62,8 @@ export function getLoginRedirect(currentPath: string): string {
 
 export function getUnauthorizedRedirect(role: UserRole): string {
   switch (role) {
-    case 'borrower':
-      return '/dashboard';
+    case 'lender':
+      return '/lender/dashboard';
     case 'investor':
       return '/investor/dashboard';
     case 'admin':

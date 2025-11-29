@@ -4,14 +4,11 @@ import { createSupabaseServerClient } from './lib/supabase';
 
 // Define protected routes and their required roles
 const protectedRoutes: { pattern: RegExp; roles: string[]; requireApproved?: boolean }[] = [
-  // Borrower routes
-  { pattern: /^\/dashboard/, roles: ['borrower', 'admin'] },
-  { pattern: /^\/application/, roles: ['borrower', 'admin'] },
+  // Lender routes (require approved status for pool submission)
+  { pattern: /^\/lender/, roles: ['lender', 'admin'] },
 
   // Investor routes (require approved status)
   { pattern: /^\/investor/, roles: ['investor', 'admin'], requireApproved: true },
-  { pattern: /^\/deals/, roles: ['investor', 'admin'], requireApproved: true },
-  { pattern: /^\/interest/, roles: ['investor', 'admin'], requireApproved: true },
 
   // Admin routes
   { pattern: /^\/admin/, roles: ['admin'] },
@@ -22,12 +19,11 @@ const publicRoutes = [
   '/',
   '/login',
   '/signup',
-  '/apply',
-  '/invest',
+  '/lender/register',
+  '/investor/register',
   '/api/auth/login',
   '/api/auth/signup',
   '/api/auth/logout',
-  '/api/investor/request-access',
 ];
 
 export const onRequest = defineMiddleware(async (context, next) => {

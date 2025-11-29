@@ -1,0 +1,342 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { lenderStatusLabels, loanTypeLabels, riskTierLabels, getRiskTierColor, formatCurrency, loanPoolStatusLabels } from '../../../types/database';
+import type { LenderStatus, RiskTier, LoanPoolStatus } from '../../../types/database';
+
+const { id } = Astro.params;
+const user = Astro.locals.user;
+
+if (!user || user.role !== 'admin') {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get lender with user info
+const { data: lender } = await supabase
+  .from('lenders')
+  .select('*, users(name, email)')
+  .eq('id', id)
+  .single();
+
+if (!lender) {
+  return Astro.redirect('/admin/lenders');
+}
+
+// Get lender's loan pools
+const { data: pools } = await supabase
+  .from('loan_pools')
+  .select('*')
+  .eq('lender_id', id)
+  .order('created_at', { ascending: false });
+
+const statusColors: Record<LenderStatus, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  under_review: 'bg-blue-100 text-blue-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
+  suspended: 'bg-gray-100 text-gray-700',
+};
+
+const poolStatusColors: Record<LoanPoolStatus, string> = {
+  draft: 'bg-gray-100 text-gray-700',
+  submitted: 'bg-amber-100 text-amber-700',
+  under_review: 'bg-blue-100 text-blue-700',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-700',
+  converted: 'bg-purple-100 text-purple-700',
+};
+---
+
+<AdminLayout title={lender.company_name}>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/admin/lenders" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to lenders
+      </a>
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-2xl font-bold text-darkest">{lender.company_name}</h1>
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColors[lender.status as LenderStatus]}`}>
+              {lenderStatusLabels[lender.status as LenderStatus]}
+            </span>
+            {lender.risk_tier && (
+              <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getRiskTierColor(lender.risk_tier as RiskTier)}`}>
+                {riskTierLabels[lender.risk_tier as RiskTier]}
+              </span>
+            )}
+          </div>
+          <p class="text-dark">{lender.users?.email}</p>
+        </div>
+        <div class="flex gap-3">
+          {lender.status !== 'approved' && (
+            <form action={`/api/admin/lenders/${id}/approve`} method="POST">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center bg-success text-white hover:bg-success/90 min-h-[48px] px-6 rounded-md font-semibold transition-colors"
+              >
+                Approve Lender
+              </button>
+            </form>
+          )}
+          {lender.status !== 'rejected' && lender.status !== 'approved' && (
+            <form action={`/api/admin/lenders/${id}/reject`} method="POST">
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center bg-error text-white hover:bg-error/90 min-h-[48px] px-6 rounded-md font-semibold transition-colors"
+              >
+                Reject
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Main Info -->
+      <div class="lg:col-span-2 space-y-6">
+        {/* Company Information */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Company Information</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Legal Entity Name</p>
+              <p class="font-semibold text-darkest">{lender.legal_entity_name || 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">EIN</p>
+              <p class="font-semibold text-darkest">{lender.ein || 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Year Founded</p>
+              <p class="font-semibold text-darkest">{lender.year_founded || 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Headquarters</p>
+              <p class="font-semibold text-darkest">{lender.headquarters_state || 'Not provided'}</p>
+            </div>
+            <div class="sm:col-span-2">
+              <p class="text-sm text-medium mb-1">Website</p>
+              {lender.website ? (
+                <a href={lender.website} target="_blank" rel="noopener noreferrer" class="font-semibold text-primary hover:underline">
+                  {lender.website}
+                </a>
+              ) : (
+                <p class="font-semibold text-darkest">Not provided</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Primary Contact</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Name</p>
+              <p class="font-semibold text-darkest">{lender.primary_contact_name}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Email</p>
+              <p class="font-semibold text-darkest">{lender.primary_contact_email}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Phone</p>
+              <p class="font-semibold text-darkest">{lender.primary_contact_phone || 'Not provided'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Lending Profile */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Lending Profile</h2>
+          <div class="grid sm:grid-cols-3 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Loan Types</p>
+              <p class="font-semibold text-darkest">
+                {lender.loan_types?.map((t: string) => loanTypeLabels[t as keyof typeof loanTypeLabels]).join(', ') || 'Not specified'}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Avg Loan Size</p>
+              <p class="font-semibold text-darkest">{lender.avg_loan_size ? formatCurrency(lender.avg_loan_size) : 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Monthly Volume</p>
+              <p class="font-semibold text-darkest">{lender.monthly_origination_volume ? formatCurrency(lender.monthly_origination_volume) : 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Total Loans Originated</p>
+              <p class="font-semibold text-darkest">{lender.total_loans_originated?.toLocaleString() || 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Weighted Avg APR</p>
+              <p class="font-semibold text-darkest">{lender.weighted_avg_apr ? `${lender.weighted_avg_apr}%` : 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Avg Term</p>
+              <p class="font-semibold text-darkest">{lender.avg_loan_term_months ? `${lender.avg_loan_term_months} months` : 'Not provided'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Performance Metrics */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Historical Performance</h2>
+          <div class="grid sm:grid-cols-3 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Default Rate</p>
+              <p class="font-semibold text-darkest">{lender.historical_default_rate !== null ? `${(lender.historical_default_rate * 100).toFixed(2)}%` : 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Loss Rate</p>
+              <p class="font-semibold text-darkest">{lender.historical_loss_rate !== null ? `${(lender.historical_loss_rate * 100).toFixed(2)}%` : 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Avg FICO Score</p>
+              <p class="font-semibold text-darkest">{lender.avg_fico_score || 'Not provided'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bank Partnership */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Bank Partnership</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Bank Partner</p>
+              <p class="font-semibold text-darkest">{lender.bank_partner_name || 'Not provided'}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Bank State</p>
+              <p class="font-semibold text-darkest">{lender.bank_partner_state || 'Not provided'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Loan Pools */}
+        <div class="bg-white rounded-xl border border-light overflow-hidden">
+          <div class="p-6 border-b border-light">
+            <h2 class="text-lg font-bold text-darkest">Loan Pools ({pools?.length || 0})</h2>
+          </div>
+          {pools && pools.length > 0 ? (
+            <div class="divide-y divide-light">
+              {pools.map((pool) => (
+                <a href={`/admin/pools/${pool.id}`} class="block p-4 hover:bg-lightest transition-colors no-underline">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-3 mb-1">
+                        <p class="font-semibold text-darkest truncate">{pool.pool_name}</p>
+                        <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${poolStatusColors[pool.status as LoanPoolStatus]}`}>
+                          {loanPoolStatusLabels[pool.status as LoanPoolStatus]}
+                        </span>
+                      </div>
+                      <p class="text-sm text-dark">{pool.total_loans} loans &bull; {formatCurrency(pool.total_principal)}</p>
+                    </div>
+                    <svg class="w-5 h-5 text-medium" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div class="p-8 text-center">
+              <p class="text-dark">No loan pools submitted yet</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        {/* Admin Notes */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Admin Notes</h3>
+          <form action={`/api/admin/lenders/${id}/notes`} method="POST">
+            <textarea
+              name="admin_notes"
+              rows="4"
+              class="w-full px-4 py-3 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+              placeholder="Add notes about this lender..."
+            >{lender.admin_notes}</textarea>
+            <button
+              type="submit"
+              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-md font-semibold transition-colors"
+            >
+              Save Notes
+            </button>
+          </form>
+        </div>
+
+        {/* Risk Assessment */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Risk Assessment</h3>
+          <form action={`/api/admin/lenders/${id}/risk`} method="POST">
+            <label class="block text-sm font-medium text-dark mb-2">Assign Risk Tier</label>
+            <select
+              name="risk_tier"
+              class="w-full min-h-[44px] px-4 rounded-md border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            >
+              <option value="">Unrated</option>
+              <option value="A" selected={lender.risk_tier === 'A'}>A - Prime</option>
+              <option value="B" selected={lender.risk_tier === 'B'}>B - Near Prime</option>
+              <option value="C" selected={lender.risk_tier === 'C'}>C - Subprime</option>
+              <option value="D" selected={lender.risk_tier === 'D'}>D - Deep Subprime</option>
+            </select>
+            <button
+              type="submit"
+              class="mt-3 w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-4 rounded-md font-semibold transition-colors"
+            >
+              Update Risk Tier
+            </button>
+          </form>
+        </div>
+
+        {/* Timeline */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-4">Timeline</h3>
+          <div class="space-y-4">
+            <div class="flex gap-3">
+              <div class="w-2 h-2 rounded-full bg-success mt-2"></div>
+              <div>
+                <p class="text-sm font-medium text-darkest">Registered</p>
+                <p class="text-xs text-medium">{new Date(lender.created_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+            {lender.approved_at && (
+              <div class="flex gap-3">
+                <div class="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
+                <div>
+                  <p class="text-sm font-medium text-darkest">Approved</p>
+                  <p class="text-xs text-medium">{new Date(lender.approved_at).toLocaleDateString()}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Licensing */}
+        {lender.lending_licenses && lender.lending_licenses.length > 0 && (
+          <div class="bg-white rounded-xl border border-light p-6">
+            <h3 class="font-bold text-darkest mb-4">Lending Licenses</h3>
+            <div class="flex flex-wrap gap-2">
+              {lender.lending_licenses.map((license: string) => (
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-lightest text-dark">
+                  {license}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</AdminLayout>

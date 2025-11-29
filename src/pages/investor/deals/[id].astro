@@ -1,0 +1,379 @@
+---
+import InvestorLayout from '../../../layouts/InvestorLayout.astro';
+import { createSupabaseServerClient } from '../../../lib/supabase';
+import { formatCurrency, riskTierLabels, getRiskTierColor, loanTypeLabels, dealStatusLabels } from '../../../types/database';
+import type { RiskTier, LoanType, DealStatus } from '../../../types/database';
+import { CommitmentForm } from '../../../components/forms/CommitmentForm';
+
+const { id } = Astro.params;
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+// Get investor profile
+const { data: investor } = await supabase
+  .from('investors')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+// Redirect if not approved
+if (!investor?.approved) {
+  return Astro.redirect('/investor/pending');
+}
+
+// Get deal with lender info and loan pool
+const { data: deal } = await supabase
+  .from('deals')
+  .select('*, lenders(company_name, year_founded, headquarters_state, bank_partner_name, risk_tier, historical_default_rate, total_loans_originated), loan_pools(*, loan_pool_documents(*))')
+  .eq('id', id)
+  .single();
+
+if (!deal) {
+  return Astro.redirect('/investor/deals');
+}
+
+// Check if investor already has a commitment to this deal
+const { data: existingCommitment } = await supabase
+  .from('deal_commitments')
+  .select('*')
+  .eq('deal_id', id)
+  .eq('investor_id', investor.id)
+  .single();
+
+const canCommit = deal.status === 'published' && !existingCommitment;
+const remainingAmount = deal.total_amount - deal.amount_committed;
+
+const statusColors: Record<DealStatus, string> = {
+  draft: 'bg-gray-100 text-gray-700',
+  published: 'bg-green-100 text-green-700',
+  fully_committed: 'bg-blue-100 text-blue-700',
+  funding: 'bg-amber-100 text-amber-700',
+  funded: 'bg-purple-100 text-purple-700',
+  performing: 'bg-indigo-100 text-indigo-700',
+  completed: 'bg-gray-100 text-gray-700',
+  defaulted: 'bg-red-100 text-red-700',
+};
+---
+
+<InvestorLayout title={deal.title}>
+  <div class="max-w-6xl mx-auto space-y-8">
+    <!-- Header -->
+    <div>
+      <a href="/investor/deals" class="inline-flex items-center text-dark hover:text-darkest mb-4 no-underline">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to deals
+      </a>
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <h1 class="text-2xl font-bold text-darkest">{deal.title}</h1>
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getRiskTierColor(deal.risk_tier as RiskTier)}`}>
+              {riskTierLabels[deal.risk_tier as RiskTier]}
+            </span>
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusColors[deal.status as DealStatus]}`}>
+              {dealStatusLabels[deal.status as DealStatus]}
+            </span>
+          </div>
+          <p class="text-dark">Originated by {deal.lenders?.company_name}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics Bar -->
+    <div class="bg-white rounded-xl border border-light p-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div class="text-center">
+          <p class="text-3xl font-bold text-primary">{deal.target_yield}%</p>
+          <p class="text-sm text-dark font-medium">Target Yield</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{formatCurrency(deal.total_amount)}</p>
+          <p class="text-sm text-dark font-medium">Deal Size</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{deal.term_months} mo</p>
+          <p class="text-sm text-dark font-medium">Term</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest">{formatCurrency(deal.minimum_investment)}</p>
+          <p class="text-sm text-dark font-medium">Minimum</p>
+        </div>
+        <div class="text-center">
+          <p class="text-2xl font-bold text-darkest capitalize">{deal.payment_frequency}</p>
+          <p class="text-sm text-dark font-medium">Payments</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funding Progress -->
+    <div class="bg-white rounded-xl border border-light p-6">
+      <h2 class="text-lg font-bold text-darkest mb-4">Funding Progress</h2>
+      <div class="flex justify-between text-sm text-dark mb-2">
+        <span>{formatCurrency(deal.amount_committed)} committed</span>
+        <span>{formatCurrency(remainingAmount)} remaining</span>
+      </div>
+      <div class="h-4 bg-lightest rounded-full overflow-hidden">
+        <div
+          class="h-full bg-primary rounded-full transition-all"
+          style={`width: ${Math.min((deal.amount_committed / deal.total_amount) * 100, 100)}%`}
+        />
+      </div>
+      <div class="flex justify-between text-sm mt-2">
+        <span class="text-dark">{deal.investor_count} investor{deal.investor_count !== 1 ? 's' : ''}</span>
+        <span class="font-semibold text-primary">{Math.round((deal.amount_committed / deal.total_amount) * 100)}% funded</span>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        {/* Description */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-4">Deal Overview</h2>
+          <p class="text-dark whitespace-pre-wrap">{deal.description || 'No description provided.'}</p>
+        </div>
+
+        {/* Loan Pool Details */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Underlying Loan Pool</h2>
+          <div class="grid sm:grid-cols-3 gap-6">
+            <div>
+              <p class="text-sm text-medium mb-1">Loan Type</p>
+              <p class="font-semibold text-darkest">{loanTypeLabels[deal.loan_type as LoanType]}</p>
+            </div>
+            <div>
+              <p class="text-sm text-medium mb-1">Total Loans</p>
+              <p class="font-semibold text-darkest">{deal.total_loans.toLocaleString()}</p>
+            </div>
+            {deal.weighted_avg_fico && (
+              <div>
+                <p class="text-sm text-medium mb-1">Avg FICO</p>
+                <p class="font-semibold text-darkest">{deal.weighted_avg_fico}</p>
+              </div>
+            )}
+            {deal.loan_pools?.weighted_avg_apr && (
+              <div>
+                <p class="text-sm text-medium mb-1">Avg APR</p>
+                <p class="font-semibold text-darkest">{deal.loan_pools.weighted_avg_apr}%</p>
+              </div>
+            )}
+            {deal.loan_pools?.weighted_avg_term_months && (
+              <div>
+                <p class="text-sm text-medium mb-1">Avg Loan Term</p>
+                <p class="font-semibold text-darkest">{deal.loan_pools.weighted_avg_term_months} months</p>
+              </div>
+            )}
+            {deal.expected_loss !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Expected Loss</p>
+                <p class="font-semibold text-darkest">{(deal.expected_loss * 100).toFixed(2)}%</p>
+              </div>
+            )}
+            {deal.loan_pools?.current_delinquency_rate !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Current Delinquency</p>
+                <p class="font-semibold text-darkest">{(deal.loan_pools.current_delinquency_rate * 100).toFixed(2)}%</p>
+              </div>
+            )}
+            {deal.loan_pools?.historical_default_rate !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Historical Default Rate</p>
+                <p class="font-semibold text-darkest">{(deal.loan_pools.historical_default_rate * 100).toFixed(2)}%</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Originator Info */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-6">Originator Profile</h2>
+          <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest text-lg">{deal.lenders?.company_name}</h3>
+              <p class="text-dark">
+                {deal.lenders?.headquarters_state && `Based in ${deal.lenders.headquarters_state}`}
+                {deal.lenders?.year_founded && ` · Founded ${deal.lenders.year_founded}`}
+              </p>
+            </div>
+            {deal.lenders?.risk_tier && (
+              <span class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getRiskTierColor(deal.lenders.risk_tier as RiskTier)}`}>
+                {riskTierLabels[deal.lenders.risk_tier as RiskTier]}
+              </span>
+            )}
+          </div>
+          <div class="grid sm:grid-cols-3 gap-6">
+            {deal.lenders?.bank_partner_name && (
+              <div>
+                <p class="text-sm text-medium mb-1">Bank Partner</p>
+                <p class="font-semibold text-darkest">{deal.lenders.bank_partner_name}</p>
+              </div>
+            )}
+            {deal.lenders?.total_loans_originated && (
+              <div>
+                <p class="text-sm text-medium mb-1">Total Loans Originated</p>
+                <p class="font-semibold text-darkest">{deal.lenders.total_loans_originated.toLocaleString()}</p>
+              </div>
+            )}
+            {deal.lenders?.historical_default_rate !== null && (
+              <div>
+                <p class="text-sm text-medium mb-1">Historical Default Rate</p>
+                <p class="font-semibold text-darkest">{(deal.lenders.historical_default_rate * 100).toFixed(2)}%</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Fees */}
+        <div class="bg-white rounded-xl border border-light p-6">
+          <h2 class="text-lg font-bold text-darkest mb-4">Fees</h2>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div class="flex justify-between">
+              <span class="text-dark">Platform Fee</span>
+              <span class="font-semibold text-darkest">{deal.platform_fee_percent}%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-dark">Servicing Fee</span>
+              <span class="font-semibold text-darkest">{deal.servicing_fee_percent}%</span>
+            </div>
+          </div>
+          <p class="text-sm text-medium mt-4">
+            Fees are deducted from interest payments. Net yield to investor is approximately {(deal.target_yield - deal.platform_fee_percent - deal.servicing_fee_percent).toFixed(2)}%.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        {/* Commitment Box */}
+        <div class="bg-white rounded-xl border border-light p-6 sticky top-6">
+          {existingCommitment ? (
+            <div class="text-center">
+              <div class="w-16 h-16 rounded-full bg-success/10 mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="font-bold text-darkest text-lg mb-2">You've Committed</h3>
+              <p class="text-2xl font-bold text-primary mb-2">{formatCurrency(existingCommitment.amount)}</p>
+              <p class="text-dark text-sm mb-4">Status: <span class="font-medium capitalize">{existingCommitment.status}</span></p>
+              <a
+                href="/investor/portfolio"
+                class="inline-flex items-center justify-center w-full border-2 border-primary text-primary hover:bg-primary/5 min-h-[48px] px-6 rounded-md font-semibold no-underline"
+              >
+                View in Portfolio
+              </a>
+            </div>
+          ) : deal.status === 'published' ? (
+            <div>
+              <h3 class="font-bold text-darkest text-lg mb-4">Make a Commitment</h3>
+              <div class="mb-4 p-3 bg-lightest rounded-lg text-sm">
+                <div class="flex justify-between mb-1">
+                  <span class="text-dark">Minimum</span>
+                  <span class="font-semibold text-darkest">{formatCurrency(deal.minimum_investment)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-dark">Available</span>
+                  <span class="font-semibold text-darkest">{formatCurrency(remainingAmount)}</span>
+                </div>
+              </div>
+              <CommitmentForm
+                client:load
+                dealId={deal.id}
+                investorId={investor.id}
+                minInvestment={deal.minimum_investment}
+                maxInvestment={remainingAmount}
+                targetYield={deal.target_yield}
+              />
+            </div>
+          ) : (
+            <div class="text-center">
+              <div class="w-16 h-16 rounded-full bg-blue-50 mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="font-bold text-darkest text-lg mb-2">{dealStatusLabels[deal.status as DealStatus]}</h3>
+              <p class="text-dark text-sm">
+                This deal is no longer accepting new commitments.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Documents */}
+        {(deal.credit_memo_url || deal.term_sheet_url || deal.loan_pools?.loan_pool_documents?.length > 0) && (
+          <div class="bg-white rounded-xl border border-light p-6">
+            <h3 class="font-bold text-darkest mb-4">Documents</h3>
+            <div class="space-y-3">
+              {deal.credit_memo_url && (
+                <a
+                  href={deal.credit_memo_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-3 p-3 bg-lightest rounded-lg hover:bg-light transition-colors no-underline"
+                >
+                  <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span class="text-sm font-medium text-darkest">Credit Memo</span>
+                </a>
+              )}
+              {deal.term_sheet_url && (
+                <a
+                  href={deal.term_sheet_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-3 p-3 bg-lightest rounded-lg hover:bg-light transition-colors no-underline"
+                >
+                  <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span class="text-sm font-medium text-darkest">Term Sheet</span>
+                </a>
+              )}
+              {deal.loan_pools?.loan_pool_documents?.map((doc: any) => (
+                <a
+                  href={doc.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-3 p-3 bg-lightest rounded-lg hover:bg-light transition-colors no-underline"
+                >
+                  <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span class="text-sm font-medium text-darkest">{doc.file_name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Help */}
+        <div class="bg-lightest rounded-xl border border-light p-6">
+          <h3 class="font-bold text-darkest mb-2">Questions?</h3>
+          <p class="text-dark text-sm mb-4">
+            Our investor relations team can provide additional loan tape data and answer your questions.
+          </p>
+          <a
+            href="mailto:investors@primebridge.com"
+            class="inline-flex items-center justify-center w-full border-2 border-primary text-primary hover:bg-primary/5 min-h-[44px] px-4 rounded-md font-semibold no-underline text-sm"
+          >
+            Contact Investor Relations
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</InvestorLayout>
