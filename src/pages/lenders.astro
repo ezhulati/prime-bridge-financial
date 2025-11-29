@@ -13,22 +13,26 @@ import Footer from '../components/layout/Footer.astro';
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl">
           <p class="text-primary-light font-medium mb-4 text-sm tracking-wide uppercase">For Fintech Lenders</p>
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white">
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white" style="line-height: 1.08; letter-spacing: -0.025em;">
             Instant Liquidity for Fintech Lenders—Without a Warehouse Line
           </h1>
-          <p class="text-xl sm:text-2xl text-gray-300 mb-10 leading-relaxed">
+          <p class="text-xl sm:text-2xl text-gray-300 mb-10" style="line-height: 1.5; max-width: 60ch;">
             Upload your loan tape, get matched with accredited investors, and access capital faster than traditional credit funds.
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
+            <!-- Primary Button: ONE per screen -->
             <a
               href="/lender/register"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[52px] px-8 rounded-lg font-semibold text-lg no-underline transition-colors"
+              class="inline-flex items-center justify-center bg-white text-darkest hover:bg-gray-100 min-h-[52px] px-8 rounded-md font-semibold text-lg no-underline transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-darkest"
+              style="transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);"
             >
               List Your Loan Pools
             </a>
+            <!-- Secondary Button: outline -->
             <a
               href="#how-it-works"
-              class="inline-flex items-center justify-center border-2 border-white/30 text-white hover:bg-white/10 min-h-[52px] px-8 rounded-lg font-semibold text-lg no-underline transition-colors"
+              class="inline-flex items-center justify-center border-2 border-white/40 text-white hover:bg-white/10 min-h-[52px] px-8 rounded-md font-semibold text-lg no-underline transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-darkest"
+              style="transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);"
             >
               See How It Works
             </a>
@@ -38,19 +42,19 @@ import Footer from '../components/layout/Footer.astro';
     </section>
 
     <!-- Why Lenders Use PrimeBridge -->
-    <section class="py-20 bg-white">
+    <section class="py-20 lg:py-24 bg-white">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="max-w-3xl mb-16">
-          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-6">
+          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-6" style="line-height: 1.12; letter-spacing: -0.02em;">
             A faster path to capital—built for fintech lenders
           </h2>
-          <p class="text-xl text-dark leading-relaxed">
+          <p class="text-xl text-dark" style="line-height: 1.6; max-width: 60ch;">
             If you're originating loans but can't scale because capital is slow, expensive, or unavailable, PrimeBridge solves the bottleneck.
           </p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div class="bg-light rounded-2xl p-8">
+          <div class="bg-light rounded-xl p-8">
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -60,7 +64,7 @@ import Footer from '../components/layout/Footer.astro';
             <p class="text-dark leading-relaxed">Access capital without the complexity and covenants of traditional warehouse facilities.</p>
           </div>
 
-          <div class="bg-light rounded-2xl p-8">
+          <div class="bg-light rounded-xl p-8">
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -70,7 +74,7 @@ import Footer from '../components/layout/Footer.astro';
             <p class="text-dark leading-relaxed">Retain your origination fees and maintain economics that work for your business model.</p>
           </div>
 
-          <div class="bg-light rounded-2xl p-8">
+          <div class="bg-light rounded-xl p-8">
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -80,7 +84,7 @@ import Footer from '../components/layout/Footer.astro';
             <p class="text-dark leading-relaxed">Grow originations without the capital constraints that limit your current operations.</p>
           </div>
 
-          <div class="bg-light rounded-2xl p-8">
+          <div class="bg-light rounded-xl p-8">
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -90,7 +94,7 @@ import Footer from '../components/layout/Footer.astro';
             <p class="text-dark leading-relaxed">Capital in weeks, not months. Know exactly where you stand throughout the process.</p>
           </div>
 
-          <div class="bg-light rounded-2xl p-8">
+          <div class="bg-light rounded-xl p-8">
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -100,7 +104,7 @@ import Footer from '../components/layout/Footer.astro';
             <p class="text-dark leading-relaxed">Investors love the visibility—which means faster decisions and better terms for you.</p>
           </div>
 
-          <div class="bg-light rounded-2xl p-8">
+          <div class="bg-light rounded-xl p-8">
             <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-5">
               <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -121,42 +125,42 @@ import Footer from '../components/layout/Footer.astro';
     </section>
 
     <!-- How It Works -->
-    <section id="how-it-works" class="py-20 bg-light">
+    <section id="how-it-works" class="py-20 lg:py-24 bg-light">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-4">
+          <h2 class="text-3xl sm:text-4xl font-bold text-darkest mb-4" style="line-height: 1.12; letter-spacing: -0.02em;">
             You originate. We handle the capital flow.
           </h2>
-          <p class="text-xl text-dark">From loan tape to funded pool in five steps</p>
+          <p class="text-xl text-dark" style="line-height: 1.5;">From loan tape to funded pool in five steps</p>
         </div>
 
         <div class="grid md:grid-cols-5 gap-6">
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">1</div>
+            <div class="w-16 h-16 bg-primary text-white rounded-xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">1</div>
             <h3 class="text-lg font-bold text-darkest mb-3">Originate Loans Normally</h3>
             <p class="text-dark text-sm leading-relaxed">You underwrite, service, and maintain your existing operations.</p>
           </div>
 
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">2</div>
+            <div class="w-16 h-16 bg-primary text-white rounded-xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">2</div>
             <h3 class="text-lg font-bold text-darkest mb-3">Upload Your Loan Tape</h3>
             <p class="text-dark text-sm leading-relaxed">CSV to standardized schema. Automated validation for FICO, DTI, APR, and compliance.</p>
           </div>
 
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">3</div>
+            <div class="w-16 h-16 bg-primary text-white rounded-xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">3</div>
             <h3 class="text-lg font-bold text-darkest mb-3">Your Pool Goes Live</h3>
             <p class="text-dark text-sm leading-relaxed">Deal room with summary, performance history, tape analytics, and compliance docs.</p>
           </div>
 
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">4</div>
+            <div class="w-16 h-16 bg-primary text-white rounded-xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">4</div>
             <h3 class="text-lg font-bold text-darkest mb-3">Investors Soft Commit</h3>
             <p class="text-dark text-sm leading-relaxed">Get real signals from accredited investors before finalizing structure.</p>
           </div>
 
           <div class="text-center">
-            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">5</div>
+            <div class="w-16 h-16 bg-primary text-white rounded-xl flex items-center justify-center text-2xl font-bold mx-auto mb-5">5</div>
             <h3 class="text-lg font-bold text-darkest mb-3">Final Allocation & Funding</h3>
             <p class="text-dark text-sm leading-relaxed">Pool closes, funds move through your chosen deal structure.</p>
           </div>
@@ -451,17 +455,19 @@ import Footer from '../components/layout/Footer.astro';
     </section>
 
     <!-- Final CTA -->
-    <section class="py-20 bg-darkest text-white">
+    <section class="py-20 lg:py-24 bg-darkest text-white">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-6 text-white">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-6 text-white" style="line-height: 1.12; letter-spacing: -0.02em;">
           Scale Your Lending Without a Balance Sheet
         </h2>
-        <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+        <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto" style="line-height: 1.6;">
           Upload your tape. Get real investor signals. Grow your originations.
         </p>
+        <!-- Secondary Button: outline style (primary is in hero) -->
         <a
           href="/lender/register"
-          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[56px] px-10 rounded-lg font-semibold text-lg no-underline transition-colors"
+          class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-darkest min-h-[56px] px-10 rounded-md font-semibold text-lg no-underline transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-darkest"
+          style="transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);"
         >
           List Your Loan Pools
         </a>

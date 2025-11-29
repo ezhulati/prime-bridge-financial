@@ -18,7 +18,7 @@ import Footer from '../components/layout/Footer.astro';
           <p class="text-sm font-semibold tracking-wider uppercase mb-4" style="color: rgba(255,255,255,0.6);">
             For Accredited Investors
           </p>
-          <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-white" style="line-height: 1.1;">
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-white" style="line-height: 1.08; letter-spacing: -0.025em;">
             Access Direct Loan Pools From Fintech Lenders
           </h1>
           <p class="text-xl mb-10" style="color: rgba(255,255,255,0.85); line-height: 1.6;">
@@ -27,15 +27,15 @@ import Footer from '../components/layout/Footer.astro';
           <div class="flex flex-col sm:flex-row gap-4">
             <a
               href="/investor/register"
-              class="inline-flex items-center justify-center min-h-[56px] px-8 rounded-lg font-semibold text-lg no-underline transition-all"
-              style="background-color: #ffffff; color: #1B365D;"
+              class="inline-flex items-center justify-center bg-white text-darkest hover:bg-gray-100 min-h-[52px] px-8 rounded-md font-semibold text-lg no-underline transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B365D]"
+              style="transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);"
             >
               Request Early Access
             </a>
             <a
               href="#how-it-works"
-              class="inline-flex items-center justify-center min-h-[56px] px-8 rounded-lg font-semibold text-lg no-underline transition-all border-2"
-              style="border-color: rgba(255,255,255,0.4); color: #ffffff;"
+              class="inline-flex items-center justify-center border-2 border-white/40 text-white hover:bg-white/10 min-h-[52px] px-8 rounded-md font-semibold text-lg no-underline transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B365D]"
+              style="transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);"
             >
               See How It Works
             </a>
@@ -48,10 +48,10 @@ import Footer from '../components/layout/Footer.astro';
     <section class="py-20 lg:py-28 bg-white">
       <div class="max-w-7xl mx-auto px-6">
         <div class="max-w-3xl mx-auto text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6">
+          <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6" style="line-height: 1.12; letter-spacing: -0.02em;">
             Why Private Credit Investors Choose PrimeBridge
           </h2>
-          <p class="text-xl text-dark">
+          <p class="text-xl text-dark" style="line-height: 1.5;">
             Direct access. Real transparency. No intermediaries.
           </p>
         </div>
@@ -125,15 +125,15 @@ import Footer from '../components/layout/Footer.astro';
     <section class="py-20 lg:py-28 bg-lightest">
       <div class="max-w-7xl mx-auto px-6">
         <div class="max-w-3xl mx-auto text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6">
+          <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6" style="line-height: 1.12; letter-spacing: -0.02em;">
             What You Invest In
           </h2>
-          <p class="text-xl text-dark">
+          <p class="text-xl text-dark" style="line-height: 1.5;">
             Vetted loan pools across major consumer and commercial categories
           </p>
         </div>
 
-        <div class="bg-white rounded-2xl border border-light overflow-hidden">
+        <div class="bg-white rounded-xl border border-light overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-primary text-white">
@@ -191,10 +191,10 @@ import Footer from '../components/layout/Footer.astro';
     <section id="how-it-works" class="py-20 lg:py-28 bg-white">
       <div class="max-w-7xl mx-auto px-6">
         <div class="max-w-3xl mx-auto text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6">
+          <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6" style="line-height: 1.12; letter-spacing: -0.02em;">
             How PrimeBridge Works for Investors
           </h2>
-          <p class="text-xl text-dark">
+          <p class="text-xl text-dark" style="line-height: 1.5;">
             A simple, transparent workflow
           </p>
         </div>
@@ -248,10 +248,10 @@ import Footer from '../components/layout/Footer.astro';
       <div class="max-w-7xl mx-auto px-6">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6">
+            <h2 class="text-3xl lg:text-4xl font-bold text-darkest mb-6" style="line-height: 1.12; letter-spacing: -0.02em;">
               Who Can Invest
             </h2>
-            <p class="text-xl text-dark mb-8">
+            <p class="text-xl text-dark mb-8" style="line-height: 1.5;">
               PrimeBridge is currently open to accredited investors who meet SEC criteria.
             </p>
             <ul class="space-y-4">
@@ -288,8 +288,8 @@ import Footer from '../components/layout/Footer.astro';
             </ul>
           </div>
 
-          <div class="bg-white rounded-2xl border border-light p-8">
-            <h3 class="text-xl font-bold text-darkest mb-4">Early Access Program</h3>
+          <div class="bg-white rounded-xl border border-light p-8">
+            <h3 class="text-xl font-bold text-darkest mb-4" style="line-height: 1.2; letter-spacing: -0.015em;">Early Access Program</h3>
             <p class="text-dark mb-6">
               We're onboarding our first cohort of fintech lenders across consumer, BNPL, medical, and SMB. Early investors get:
             </p>
@@ -352,16 +352,16 @@ import Footer from '../components/layout/Footer.astro';
     <!-- Final CTA Section -->
     <section class="py-20 lg:py-28" style="background-color: #1B365D;">
       <div class="max-w-4xl mx-auto px-6 text-center">
-        <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-white">
+        <h2 class="text-3xl lg:text-4xl font-bold mb-6 text-white" style="line-height: 1.12; letter-spacing: -0.02em;">
           Get First Access to Direct Loan Pools
         </h2>
-        <p class="text-xl mb-10" style="color: rgba(255,255,255,0.85);">
+        <p class="text-xl mb-10" style="color: rgba(255,255,255,0.85); line-height: 1.5;">
           Institutional-grade opportunities for accredited private credit investors.
         </p>
         <a
           href="/investor/register"
-          class="inline-flex items-center justify-center min-h-[56px] px-10 rounded-lg font-semibold text-lg no-underline transition-all"
-          style="background-color: #ffffff; color: #1B365D;"
+          class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-darkest min-h-[52px] px-10 rounded-md font-semibold text-lg no-underline transition-all focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B365D]"
+          style="transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);"
         >
           Request Early Access
         </a>
