@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { getAuthUser } from '../lib/auth';
+
+const authUser = await getAuthUser(Astro.cookies);
+---
+
+<BaseLayout
+  title="About PrimeBridge Finance"
+  description="PrimeBridge is the marketplace for private credit, connecting fintech lenders with accredited investors through automated loan pool transactions."
+  image="/PrimeBridge_Finance.jpg"
+>
+  <Header user={authUser?.user} />
+
+  <main>
+    <!-- Hero -->
+    <section class="py-20 lg:py-24 bg-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl">
+          <p class="text-primary font-semibold tracking-widest uppercase text-xs mb-4">
+            About Us
+          </p>
+          <h1 class="text-4xl lg:text-5xl font-black text-darkest leading-[1.1] tracking-tight mb-6">
+            The infrastructure private credit has been missing
+          </h1>
+          <p class="text-xl text-dark leading-relaxed">
+            PrimeBridge is building the marketplace that connects fintech lenders directly with accredited investors—eliminating the friction, opacity, and middlemen that have long defined private credit.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission -->
+    <section class="py-20 lg:py-24 bg-lightest">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div>
+            <h2 class="text-3xl lg:text-4xl font-bold text-darkest tracking-tight leading-[1.1] mb-6">
+              Why we exist
+            </h2>
+            <div class="space-y-4 text-lg text-dark leading-relaxed">
+              <p>
+                Fintech lenders have revolutionized consumer and SME lending with better underwriting, faster decisions, and improved customer experience. But when it comes to accessing capital, they're stuck with the same antiquated process: opaque negotiations with credit funds, lengthy due diligence cycles, and warehouse lines that constrain growth.
+              </p>
+              <p>
+                Meanwhile, accredited investors seeking yield are locked out of private credit opportunities that have traditionally been reserved for institutions. They're forced to invest through funds that charge 2/20 and offer no transparency into underlying assets.
+              </p>
+              <p>
+                <strong class="text-darkest">PrimeBridge changes both sides of this equation.</strong>
+              </p>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-light p-8 shadow-sm">
+            <div class="space-y-6">
+              <div class="flex gap-4">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-darkest">For Lenders</h3>
+                  <p class="text-dark mt-1">Direct access to capital markets without warehouse lines or opaque fund negotiations.</p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-darkest">For Investors</h3>
+                  <p class="text-dark mt-1">Loan-level transparency, no fund fees, and direct access to private credit yields.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How We're Different -->
+    <section class="py-20 lg:py-24 bg-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <h2 class="text-3xl lg:text-4xl font-bold text-darkest tracking-tight leading-[1.1]">
+            How we're different
+          </h2>
+          <p class="mt-4 text-lg text-dark leading-relaxed">
+            Built for the modern private credit ecosystem
+          </p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-lightest rounded-xl p-8 border border-light">
+            <div class="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center">
+              <svg class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-darkest mb-3">
+              Bank-partner compliant
+            </h3>
+            <p class="text-dark leading-relaxed">
+              Every loan on our platform is bank-originated with proper hold periods. True lender compliance is built into the infrastructure.
+            </p>
+          </div>
+          <div class="bg-lightest rounded-xl p-8 border border-light">
+            <div class="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center">
+              <svg class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-darkest mb-3">
+              Full transparency
+            </h3>
+            <p class="text-dark leading-relaxed">
+              Complete loan tapes, FICO distributions, delinquency data, and static pool analysis. No black boxes, no hidden information.
+            </p>
+          </div>
+          <div class="bg-lightest rounded-xl p-8 border border-light">
+            <div class="w-14 h-14 rounded-xl bg-primary/10 mb-6 flex items-center justify-center">
+              <svg class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-darkest mb-3">
+              Automated pipeline
+            </h3>
+            <p class="text-dark leading-relaxed">
+              From loan origination to investor allocation—KYC, documents, compliance, payments—fully automated for efficiency and scale.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 lg:py-24" style="background-color: #1B365D;">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight leading-[1.1]">
+          Join the future of private credit
+        </h2>
+        <p class="text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Whether you're a fintech lender looking for liquidity or an investor seeking yield, PrimeBridge is built for you.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="/lender/register"
+            class="inline-flex items-center justify-center bg-white hover:bg-lightest min-h-[52px] px-8 rounded font-semibold no-underline text-lg transition-colors"
+            style="color: #1B365D;"
+          >
+            List your loan pools
+          </a>
+          <a
+            href="/investor/register"
+            class="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white/10 min-h-[52px] px-8 rounded font-semibold no-underline text-lg transition-colors"
+          >
+            Request investor access
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
