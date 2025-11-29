@@ -38,6 +38,8 @@ export type DocumentType =
   | 'compliance_docs'
   | 'other';
 
+export type LoanStatus = 'current' | 'delinquent_30' | 'delinquent_60' | 'delinquent_90' | 'default' | 'charged_off' | 'paid_off';
+
 // ============================================
 // USER
 // ============================================
@@ -236,6 +238,46 @@ export interface LoanPoolDocument {
 }
 
 // ============================================
+// LOAN (Individual loan from loan tape)
+// ============================================
+
+export interface Loan {
+  id: string;
+  loan_pool_id: string;
+
+  // Loan Identification
+  loan_reference: string;
+
+  // Borrower Info (anonymized)
+  borrower_state: string | null;
+  borrower_zip: string | null;
+
+  // Loan Terms
+  original_principal: number;
+  current_balance: number;
+  interest_rate: number;
+  term_months: number;
+  origination_date: string;
+  maturity_date: string | null;
+
+  // Credit Profile
+  fico_score: number | null;
+  dti_ratio: number | null;
+
+  // Payment Info
+  monthly_payment: number | null;
+  payments_made: number;
+  payments_remaining: number | null;
+
+  // Status
+  status: LoanStatus;
+  days_delinquent: number;
+
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================
 // DEAL
 // ============================================
 
@@ -413,6 +455,16 @@ export const documentTypeLabels: Record<DocumentType, string> = {
   bank_certification: 'Bank Certification',
   compliance_docs: 'Compliance Documents',
   other: 'Other',
+};
+
+export const loanStatusLabels: Record<LoanStatus, string> = {
+  current: 'Current',
+  delinquent_30: '30+ Days Delinquent',
+  delinquent_60: '60+ Days Delinquent',
+  delinquent_90: '90+ Days Delinquent',
+  default: 'Default',
+  charged_off: 'Charged Off',
+  paid_off: 'Paid Off',
 };
 
 // ============================================
