@@ -49,7 +49,7 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
       }
 
       // Redirect based on role
-      window.location.href = result.redirectUrl || '/dashboard';
+      window.location.href = result.redirectUrl || '/';
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {

@@ -46,8 +46,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Determine redirect URL based on role
-    let redirectUrl = '/dashboard';
-    if (userData.role === 'investor') {
+    let redirectUrl = '/';
+    if (userData.role === 'lender') {
+      redirectUrl = '/lender/dashboard';
+    } else if (userData.role === 'investor') {
       // Check if investor is approved
       const { data: investorData } = await supabase
         .from('investors')

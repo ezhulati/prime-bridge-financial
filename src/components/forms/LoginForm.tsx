@@ -38,7 +38,7 @@ export function LoginForm() {
       }
 
       // Redirect based on role
-      window.location.href = result.redirectUrl || '/dashboard';
+      window.location.href = result.redirectUrl || '/';
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {
