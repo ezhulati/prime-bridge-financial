@@ -53,19 +53,19 @@ const getDashboardUrl = (role: string) => {
       )}
 
       <!-- Auth buttons -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2 sm:gap-4">
         {user ? (
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 sm:gap-4">
             <a
               href={getDashboardUrl(user.role)}
-              class="text-dark hover:text-darkest no-underline font-medium"
+              class="text-dark hover:text-darkest no-underline font-medium text-sm sm:text-base"
             >
               Dashboard
             </a>
             <form action="/api/auth/logout" method="POST">
               <button
                 type="submit"
-                class="text-primary font-medium hover:text-primary-hover"
+                class="text-primary font-medium hover:text-primary-hover text-sm sm:text-base"
               >
                 Log out
               </button>
@@ -75,21 +75,22 @@ const getDashboardUrl = (role: string) => {
           <>
             <a
               href="/login"
-              class="text-dark hover:text-darkest no-underline font-medium"
+              class="text-dark hover:text-darkest no-underline font-medium text-sm sm:text-base"
             >
               Log in
             </a>
             <a
               href="/investor/register"
-              class="hidden sm:inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline"
+              class="hidden md:inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline"
             >
               Invest
             </a>
             <a
               href="/lender/register"
-              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-5 rounded-md font-semibold no-underline"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] sm:min-h-[40px] px-3 sm:px-5 rounded-md font-semibold no-underline text-sm sm:text-base whitespace-nowrap"
             >
-              List Loan Pools
+              <span class="sm:hidden">List Pools</span>
+              <span class="hidden sm:inline">List Loan Pools</span>
             </a>
           </>
         )}

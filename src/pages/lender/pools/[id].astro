@@ -1,8 +1,9 @@
 ---
 import LenderLayout from '../../../layouts/LenderLayout.astro';
 import { createSupabaseServerClient } from '../../../lib/supabase';
-import { formatCurrency, loanPoolStatusLabels, loanTypeLabels, riskTierLabels, documentTypeLabels } from '../../../types/database';
-import type { LoanPoolStatus, DocumentType } from '../../../types/database';
+import { formatCurrency, loanPoolStatusLabels, loanTypeLabels, riskTierLabels, documentTypeLabels, loanStatusLabels } from '../../../types/database';
+import type { LoanPoolStatus, DocumentType, LoanStatus } from '../../../types/database';
+import { LoanTapeUpload } from '../../../components/forms/LoanTapeUpload';
 
 const { id } = Astro.params;
 const user = Astro.locals.user;
@@ -42,6 +43,19 @@ const { data: deal } = await supabase
   .select('*')
   .eq('loan_pool_id', id)
   .single();
+
+// Get loan count and sample loans
+const { count: loanCount } = await supabase
+  .from('loans')
+  .select('*', { count: 'exact', head: true })
+  .eq('loan_pool_id', id);
+
+const { data: sampleLoans } = await supabase
+  .from('loans')
+  .select('*')
+  .eq('loan_pool_id', id)
+  .order('created_at', { ascending: false })
+  .limit(10);
 
 const statusColors: Record<LoanPoolStatus, string> = {
   draft: 'bg-gray-100 text-gray-700',
