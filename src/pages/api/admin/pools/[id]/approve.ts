@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../../lib/supabase';
+import { sendLenderEmail } from '../../../../../lib/email';
 
 export const POST: APIRoute = async ({ params, cookies }) => {
   try {
@@ -54,6 +55,37 @@ export const POST: APIRoute = async ({ params, cookies }) => {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
+    }
+
+    // Get lender info for email
+    const { data: lender } = await supabase
+      .from('lenders')
+      .select('user_id, company_name')
+      .eq('id', pool.lender_id)
+      .single();
+
+    if (lender) {
+      const { data: lenderUser } = await supabase
+        .from('users')
+        .select('name, email')
+        .eq('id', lender.user_id)
+        .single();
+
+      if (lenderUser) {
+        // Format pool size for email
+        const poolSize = pool.total_amount
+          ? `$${(pool.total_amount / 1000000).toFixed(1)}M`
+          : 'TBD';
+        const targetYield = pool.target_yield ? `${pool.target_yield}%` : 'TBD';
+
+        sendLenderEmail('poolApproved', lenderUser.email, {
+          name: lenderUser.name || lender.company_name,
+          poolName: pool.name || 'Unnamed Pool',
+          poolId: pool.id,
+          targetYield,
+          totalAmount: poolSize,
+        }).catch(err => console.error('[Admin] Failed to send pool approval email:', err));
+      }
     }
 
     // Redirect back to pool detail page

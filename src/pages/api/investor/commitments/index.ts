@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../lib/supabase';
+import { sendInvestorEmail, sendLenderEmail } from '../../../../lib/email';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -155,6 +156,89 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         .from('deals')
         .update({ status: 'fully_committed' })
         .eq('id', deal_id);
+    }
+
+    // Get deal details for emails
+    const { data: dealDetails } = await supabase
+      .from('deals')
+      .select('name, target_yield, loan_pool_id')
+      .eq('id', deal_id)
+      .single();
+
+    // Get investor user info
+    const { data: investorUser } = await supabase
+      .from('users')
+      .select('name, email')
+      .eq('id', userRecord.id)
+      .single();
+
+    // Format amount for display
+    const formatAmount = (amt: number) => `$${amt.toLocaleString()}`;
+
+    // Send confirmation email to investor
+    if (investorUser && dealDetails) {
+      sendInvestorEmail('commitmentConfirmed', investorUser.email, {
+        name: investorUser.name || 'Investor',
+        dealName: dealDetails.name || 'Investment Pool',
+        dealId: deal_id,
+        commitmentAmount: formatAmount(amount),
+        expectedYield: dealDetails.target_yield ? `${dealDetails.target_yield}%` : 'TBD',
+      }).catch(err => console.error('[Commitment] Failed to send investor confirmation:', err));
+    }
+
+    // Get lender info and send notification
+    if (dealDetails?.loan_pool_id) {
+      const { data: pool } = await supabase
+        .from('loan_pools')
+        .select('lender_id, name')
+        .eq('id', dealDetails.loan_pool_id)
+        .single();
+
+      if (pool) {
+        const { data: lender } = await supabase
+          .from('lenders')
+          .select('user_id, company_name')
+          .eq('id', pool.lender_id)
+          .single();
+
+        if (lender) {
+          const { data: lenderUser } = await supabase
+            .from('users')
+            .select('name, email')
+            .eq('id', lender.user_id)
+            .single();
+
+          if (lenderUser) {
+            // Get commitment stats
+            const { count: investorCount } = await supabase
+              .from('deal_commitments')
+              .select('*', { count: 'exact', head: true })
+              .eq('deal_id', deal_id);
+
+            sendLenderEmail('commitmentReceived', lenderUser.email, {
+              name: lenderUser.name || lender.company_name,
+              poolName: pool.name || dealDetails.name || 'Investment Pool',
+              poolId: dealDetails.loan_pool_id,
+              investorName: investorUser?.name || 'An investor',
+              commitmentAmount: formatAmount(amount),
+              totalCommitted: formatAmount(newAmountCommitted),
+              targetAmount: formatAmount(deal.total_amount),
+              percentFunded: Math.round((newAmountCommitted / deal.total_amount) * 100),
+            }).catch(err => console.error('[Commitment] Failed to send lender notification:', err));
+
+            // If fully funded, send pool funded email
+            if (newAmountCommitted >= deal.total_amount) {
+              sendLenderEmail('poolFunded', lenderUser.email, {
+                name: lenderUser.name || lender.company_name,
+                poolName: pool.name || dealDetails.name || 'Investment Pool',
+                poolId: dealDetails.loan_pool_id,
+                totalFunded: formatAmount(deal.total_amount),
+                investorCount: investorCount || 0,
+              }).catch(err => console.error('[Commitment] Failed to send pool funded email:', err));
+            }
+          }
+        }
+      }
     }
 
     return new Response(JSON.stringify(commitment), {

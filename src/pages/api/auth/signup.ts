@@ -1,6 +1,10 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient, createSupabaseAdminClient } from '../../../lib/supabase';
 import { signupSchema } from '../../../types/forms';
+import { sendLenderEmail, sendInvestorEmail, sendAdminEmail } from '../../../lib/email';
+
+// Admin emails to notify on new signups
+const ADMIN_NOTIFICATION_EMAILS = ['admin@primebridge.finance'];
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -101,6 +105,41 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       redirectUrl = '/investor/pending';
     } else if (role === 'lender') {
       redirectUrl = '/lender/dashboard';
+    }
+
+    // Send welcome emails (non-blocking)
+    try {
+      if (role === 'lender') {
+        // Send welcome email to lender
+        sendLenderEmail('welcome', email, {
+          name,
+          companyName: name, // They'll update this later
+        }).catch(err => console.error('[Signup] Failed to send lender welcome email:', err));
+
+        // Notify admins of new lender
+        sendAdminEmail('newLenderAlert', ADMIN_NOTIFICATION_EMAILS, {
+          lenderName: name,
+          companyName: name,
+          email,
+          lenderId: userData.id,
+        }).catch(err => console.error('[Signup] Failed to send admin lender alert:', err));
+      } else if (role === 'investor') {
+        // Send welcome email to investor
+        sendInvestorEmail('welcome', email, {
+          name,
+        }).catch(err => console.error('[Signup] Failed to send investor welcome email:', err));
+
+        // Notify admins of new investor
+        sendAdminEmail('newInvestorAlert', ADMIN_NOTIFICATION_EMAILS, {
+          investorName: name,
+          email,
+          investorType: 'Pending Accreditation',
+          investorId: userData.id,
+        }).catch(err => console.error('[Signup] Failed to send admin investor alert:', err));
+      }
+    } catch (emailError) {
+      // Log email errors but don't fail signup
+      console.error('[Signup] Email notification error:', emailError);
     }
 
     return new Response(

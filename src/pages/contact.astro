@@ -78,8 +78,37 @@ const authUser = await getAuthUser(Astro.cookies);
           <div class="bg-lightest rounded-2xl border border-light p-8 lg:p-10">
             <h2 class="text-2xl font-bold text-darkest mb-8">Send us a message</h2>
 
-            <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="space-y-6">
-              <input type="hidden" name="form-name" value="contact" />
+            <!-- Success Message -->
+            <div id="success-message" class="hidden">
+              <div class="text-center py-8">
+                <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+                  <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-darkest mb-2">Message sent</h3>
+                <p class="text-dark mb-6">We'll get back to you within 1-2 business days.</p>
+                <button
+                  type="button"
+                  id="send-another"
+                  class="text-primary font-medium underline underline-offset-2 hover:text-primary-hover"
+                >
+                  Send another message
+                </button>
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p id="error-text" class="text-red-700 text-sm"></p>
+              </div>
+            </div>
+
+            <form id="contact-form" class="space-y-6">
               <p class="hidden">
                 <label>Don't fill this out: <input name="bot-field" /></label>
               </p>
@@ -158,9 +187,14 @@ const authUser = await getAuthUser(Astro.cookies);
 
               <button
                 type="submit"
+                id="submit-button"
                 class="w-full inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[52px] px-8 rounded-lg font-semibold text-lg transition-colors"
               >
-                Send message
+                <span id="button-text">Send message</span>
+                <svg id="button-spinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
               </button>
 
               <p class="text-xs text-dark text-center">
@@ -174,4 +208,78 @@ const authUser = await getAuthUser(Astro.cookies);
   </main>
 
   <Footer />
+
+  <script>
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const successMessage = document.getElementById('success-message');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+    const buttonText = document.getElementById('button-text');
+    const buttonSpinner = document.getElementById('button-spinner');
+    const sendAnother = document.getElementById('send-another');
+
+    function setLoading(loading: boolean) {
+      if (loading) {
+        submitButton.disabled = true;
+        buttonText?.classList.add('opacity-50');
+        buttonSpinner?.classList.remove('hidden');
+      } else {
+        submitButton.disabled = false;
+        buttonText?.classList.remove('opacity-50');
+        buttonSpinner?.classList.add('hidden');
+      }
+    }
+
+    function showError(message: string) {
+      if (errorText) errorText.textContent = message;
+      errorMessage?.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errorMessage?.classList.add('hidden');
+    }
+
+    function showSuccess() {
+      form?.classList.add('hidden');
+      successMessage?.classList.remove('hidden');
+      hideError();
+    }
+
+    function resetForm() {
+      form?.reset();
+      form?.classList.remove('hidden');
+      successMessage?.classList.add('hidden');
+      hideError();
+    }
+
+    sendAnother?.addEventListener('click', resetForm);
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+      setLoading(true);
+
+      try {
+        const formData = new FormData(form);
+
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showSuccess();
+        } else {
+          showError(result.error || 'Failed to send message. Please try again.');
+        }
+      } catch (error) {
+        showError('An unexpected error occurred. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
 </BaseLayout>

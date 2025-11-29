@@ -1,5 +1,8 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../../lib/supabase';
+import { sendLenderEmail, sendAdminEmail } from '../../../../../lib/email';
+
+const ADMIN_NOTIFICATION_EMAILS = ['admin@primebridge.finance'];
 
 export const POST: APIRoute = async ({ params, cookies }) => {
   try {
@@ -95,6 +98,51 @@ export const POST: APIRoute = async ({ params, cookies }) => {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
+    }
+
+    // Get pool details for email
+    const { data: poolData } = await supabase
+      .from('loan_pools')
+      .select('name, total_amount, asset_class')
+      .eq('id', id)
+      .single();
+
+    // Get lender company name
+    const { data: lenderData } = await supabase
+      .from('lenders')
+      .select('company_name')
+      .eq('id', lender.id)
+      .single();
+
+    // Get user email
+    const { data: userData } = await supabase
+      .from('users')
+      .select('name, email')
+      .eq('id', userRecord.id)
+      .single();
+
+    if (userData && poolData) {
+      const poolSize = poolData.total_amount
+        ? `$${(poolData.total_amount / 1000000).toFixed(1)}M`
+        : 'TBD';
+
+      // Send confirmation to lender
+      sendLenderEmail('poolSubmitted', userData.email, {
+        name: userData.name || 'Lender',
+        poolName: poolData.name || 'Unnamed Pool',
+        poolId: id as string,
+        totalAmount: poolSize,
+        assetClass: poolData.asset_class || 'Consumer',
+      }).catch(err => console.error('[Submit] Failed to send lender confirmation:', err));
+
+      // Notify admins
+      sendAdminEmail('newPoolSubmission', ADMIN_NOTIFICATION_EMAILS, {
+        lenderName: lenderData?.company_name || userData.name || 'Unknown Lender',
+        poolName: poolData.name || 'Unnamed Pool',
+        poolId: id as string,
+        poolSize,
+        assetClass: poolData.asset_class || 'Consumer',
+      }).catch(err => console.error('[Submit] Failed to send admin notification:', err));
     }
 
     // Redirect back to pool detail page

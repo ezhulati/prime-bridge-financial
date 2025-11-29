@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../../lib/supabase';
+import { sendInvestorEmail } from '../../../../../lib/email';
 
 export const POST: APIRoute = async ({ params, cookies }) => {
   try {
@@ -52,6 +53,22 @@ export const POST: APIRoute = async ({ params, cookies }) => {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
+    }
+
+    // Get investor's user info for email
+    const { data: investorUser } = await supabase
+      .from('users')
+      .select('name, email')
+      .eq('id', investor.user_id)
+      .single();
+
+    // Send rejection email to investor
+    if (investorUser) {
+      sendInvestorEmail('accreditationRejected', investorUser.email, {
+        name: investorUser.name || 'Investor',
+        reason: 'Your accreditation documentation requires additional verification. Please update your investor profile with the required documentation.',
+        canReapply: true,
+      }).catch(err => console.error('[Admin] Failed to send investor rejection email:', err));
     }
 
     // Redirect back to investor detail page

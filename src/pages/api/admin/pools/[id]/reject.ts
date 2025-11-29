@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '../../../../../lib/supabase';
+import { sendLenderEmail } from '../../../../../lib/email';
 
 export const POST: APIRoute = async ({ params, cookies }) => {
   try {
@@ -54,6 +55,35 @@ export const POST: APIRoute = async ({ params, cookies }) => {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
+    }
+
+    // Get lender info for email
+    const { data: lender } = await supabase
+      .from('lenders')
+      .select('user_id, company_name')
+      .eq('id', pool.lender_id)
+      .single();
+
+    if (lender) {
+      const { data: lenderUser } = await supabase
+        .from('users')
+        .select('name, email')
+        .eq('id', lender.user_id)
+        .single();
+
+      if (lenderUser) {
+        sendLenderEmail('poolRejected', lenderUser.email, {
+          name: lenderUser.name || lender.company_name,
+          poolName: pool.name || 'Unnamed Pool',
+          poolId: pool.id,
+          reason: 'The pool submission requires additional information or does not meet our current criteria.',
+          suggestions: [
+            'Ensure loan tape includes all required fields',
+            'Provide at least 6 months of historical performance data',
+            'Include detailed underwriting criteria documentation',
+          ],
+        }).catch(err => console.error('[Admin] Failed to send pool rejection email:', err));
+      }
     }
 
     // Redirect back to pool detail page
