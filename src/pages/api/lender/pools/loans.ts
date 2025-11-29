@@ -144,12 +144,32 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 // Update pool statistics based on imported loans
 async function updatePoolStats(supabase: ReturnType<typeof createSupabaseServerClient>, poolId: string) {
-  // Get aggregate stats from loans
-  const { data: stats } = await supabase
+  // Get aggregate stats from loans using RPC (efficient SQL calculation)
+  const { data: stats, error: rpcError } = await supabase
     .rpc('get_pool_loan_stats', { pool_id_param: poolId });
 
-  if (!stats || stats.length === 0) {
-    // Fallback to manual calculation if RPC doesn't exist
+  // RPC returns array with single row
+  const poolStats = Array.isArray(stats) ? stats[0] : stats;
+
+  if (poolStats && !rpcError && poolStats.total_loans > 0) {
+    // Use RPC results - much faster for large pools
+    await supabase
+      .from('loan_pools')
+      .update({
+        total_loans: Number(poolStats.total_loans),
+        total_principal: Number(poolStats.total_principal),
+        total_outstanding_balance: Number(poolStats.total_outstanding_balance),
+        weighted_avg_apr: Number(poolStats.weighted_avg_apr),
+        weighted_avg_term_months: Number(poolStats.weighted_avg_term_months),
+        weighted_avg_fico: poolStats.weighted_avg_fico ? Number(poolStats.weighted_avg_fico) : null,
+        weighted_avg_dti: poolStats.weighted_avg_dti ? Number(poolStats.weighted_avg_dti) : null,
+        weighted_avg_seasoning_months: poolStats.weighted_avg_seasoning_months ? Number(poolStats.weighted_avg_seasoning_months) : null,
+        current_delinquency_rate: Number(poolStats.current_delinquency_rate),
+        top_states: poolStats.top_states,
+      })
+      .eq('id', poolId);
+  } else {
+    // Fallback to manual calculation if RPC fails
     const { data: loans } = await supabase
       .from('loans')
       .select('*')
