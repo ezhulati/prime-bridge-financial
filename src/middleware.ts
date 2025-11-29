@@ -19,8 +19,14 @@ const publicRoutes = [
   '/',
   '/login',
   '/signup',
+  '/lenders',      // Public lender landing page
+  '/investors',    // Public investor landing page
   '/lender/register',
   '/investor/register',
+  '/about',
+  '/contact',
+  '/platform',
+  '/invest',
   '/api/auth/login',
   '/api/auth/signup',
   '/api/auth/logout',

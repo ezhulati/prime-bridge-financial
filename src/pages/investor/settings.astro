@@ -1,0 +1,182 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../../components/layout/Header.astro';
+import Footer from '../../components/layout/Footer.astro';
+import { getAuthUser } from '../../lib/auth';
+import { supabase } from '../../lib/supabase';
+
+const authUser = await getAuthUser(Astro.cookies);
+
+// Redirect if not logged in or not an investor
+if (!authUser?.user || authUser.user.role !== 'investor') {
+  return Astro.redirect('/login');
+}
+
+// Get investor profile
+const { data: investor } = await supabase
+  .from('investors')
+  .select('*')
+  .eq('user_id', authUser.user.id)
+  .single();
+
+// Get payment methods (placeholder - would come from Stripe)
+const paymentMethods: any[] = [];
+---
+
+<BaseLayout
+  title="Settings | PrimeBridge Finance"
+  description="Manage your account settings, payment methods, and notification preferences."
+>
+  <Header user={authUser?.user} />
+
+  <main class="py-12 lg:py-16 bg-lightest min-h-screen">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <nav class="text-sm mb-4">
+          <a href="/investor/dashboard" class="text-primary hover:underline">Dashboard</a>
+          <span class="text-dark mx-2">/</span>
+          <span class="text-dark">Settings</span>
+        </nav>
+        <h1 class="text-3xl font-bold text-darkest">Settings</h1>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Payment Methods Section -->
+        <section id="payment-methods" class="bg-white rounded-xl border border-light p-6 lg:p-8">
+          <div class="flex items-start justify-between mb-6">
+            <div>
+              <h2 class="text-xl font-bold text-darkest">Payment Methods</h2>
+              <p class="text-dark mt-1">Manage your payment methods for investments.</p>
+            </div>
+            <button
+              type="button"
+              id="add-payment-method"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-5 rounded-lg font-semibold text-sm"
+            >
+              Add Payment Method
+            </button>
+          </div>
+
+          {paymentMethods.length > 0 ? (
+            <div class="space-y-3">
+              {paymentMethods.map((method) => (
+                <div class="flex items-center justify-between p-4 bg-lightest rounded-lg border border-light">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-darkest">{method.brand} ending in {method.last4}</p>
+                      <p class="text-sm text-dark">Expires {method.exp_month}/{method.exp_year}</p>
+                    </div>
+                  </div>
+                  <button type="button" class="text-error hover:underline text-sm font-medium">
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="text-center py-8 bg-lightest rounded-lg border border-dashed border-light">
+              <svg class="w-12 h-12 text-dark mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <p class="text-dark mb-1">No payment methods added</p>
+              <p class="text-sm text-dark">Add a payment method to make investments.</p>
+            </div>
+          )}
+        </section>
+
+        <!-- Notification Preferences -->
+        <section class="bg-white rounded-xl border border-light p-6 lg:p-8">
+          <h2 class="text-xl font-bold text-darkest mb-6">Notification Preferences</h2>
+          <div class="space-y-4">
+            <label class="flex items-center justify-between p-4 bg-lightest rounded-lg cursor-pointer hover:bg-light transition-colors">
+              <div>
+                <p class="font-medium text-darkest">New Deal Alerts</p>
+                <p class="text-sm text-dark">Get notified when new investment opportunities are available</p>
+              </div>
+              <input type="checkbox" checked class="w-5 h-5 text-primary rounded border-light focus:ring-primary" />
+            </label>
+            <label class="flex items-center justify-between p-4 bg-lightest rounded-lg cursor-pointer hover:bg-light transition-colors">
+              <div>
+                <p class="font-medium text-darkest">Portfolio Updates</p>
+                <p class="text-sm text-dark">Receive updates on your active investments</p>
+              </div>
+              <input type="checkbox" checked class="w-5 h-5 text-primary rounded border-light focus:ring-primary" />
+            </label>
+            <label class="flex items-center justify-between p-4 bg-lightest rounded-lg cursor-pointer hover:bg-light transition-colors">
+              <div>
+                <p class="font-medium text-darkest">Payment Notifications</p>
+                <p class="text-sm text-dark">Get notified about distributions and payments</p>
+              </div>
+              <input type="checkbox" checked class="w-5 h-5 text-primary rounded border-light focus:ring-primary" />
+            </label>
+            <label class="flex items-center justify-between p-4 bg-lightest rounded-lg cursor-pointer hover:bg-light transition-colors">
+              <div>
+                <p class="font-medium text-darkest">Marketing Emails</p>
+                <p class="text-sm text-dark">Receive news, insights, and platform updates</p>
+              </div>
+              <input type="checkbox" class="w-5 h-5 text-primary rounded border-light focus:ring-primary" />
+            </label>
+          </div>
+        </section>
+
+        <!-- Security -->
+        <section class="bg-white rounded-xl border border-light p-6 lg:p-8">
+          <h2 class="text-xl font-bold text-darkest mb-6">Security</h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-lightest rounded-lg">
+              <div>
+                <p class="font-medium text-darkest">Password</p>
+                <p class="text-sm text-dark">Last changed: Never</p>
+              </div>
+              <button type="button" class="text-primary hover:underline font-medium text-sm">
+                Change Password
+              </button>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-lightest rounded-lg">
+              <div>
+                <p class="font-medium text-darkest">Two-Factor Authentication</p>
+                <p class="text-sm text-dark">Add an extra layer of security to your account</p>
+              </div>
+              <button type="button" class="inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[36px] px-4 rounded-lg font-medium text-sm">
+                Enable 2FA
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Account Actions -->
+        <section class="bg-white rounded-xl border border-light p-6 lg:p-8">
+          <h2 class="text-xl font-bold text-darkest mb-6">Account</h2>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 bg-lightest rounded-lg">
+              <div>
+                <p class="font-medium text-darkest">Export Data</p>
+                <p class="text-sm text-dark">Download a copy of your account data</p>
+              </div>
+              <button type="button" class="text-primary hover:underline font-medium text-sm">
+                Request Export
+              </button>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-error/5 rounded-lg border border-error/20">
+              <div>
+                <p class="font-medium text-error">Delete Account</p>
+                <p class="text-sm text-dark">Permanently delete your account and all data</p>
+              </div>
+              <button type="button" class="text-error hover:underline font-medium text-sm">
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
