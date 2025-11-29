@@ -239,6 +239,80 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
           </div>
         )}
 
+        {/* Loan Tape Upload - Only for draft pools */}
+        {canSubmit && (
+          <div class="bg-white rounded-xl border border-light p-6">
+            <h2 class="text-lg font-bold text-darkest mb-2">Loan Tape Upload</h2>
+            <p class="text-dark mb-6">
+              Upload your loan tape (CSV or Excel) to import individual loan data. This helps us analyze your pool and provide better pricing.
+            </p>
+            <LoanTapeUpload client:load poolId={id!} />
+          </div>
+        )}
+
+        {/* Imported Loans */}
+        {(loanCount ?? 0) > 0 && (
+          <div class="bg-white rounded-xl border border-light overflow-hidden">
+            <div class="p-6 border-b border-light">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-lg font-bold text-darkest">Imported Loans</h2>
+                  <p class="text-dark text-sm mt-1">{(loanCount ?? 0).toLocaleString()} loans in this pool</p>
+                </div>
+                {canSubmit && (
+                  <button
+                    id="clear-loans-btn"
+                    class="text-sm text-error hover:underline"
+                  >
+                    Clear all loans
+                  </button>
+                )}
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-lightest border-b border-light">
+                  <tr>
+                    <th class="px-4 py-3 text-left font-medium text-dark">Loan ID</th>
+                    <th class="px-4 py-3 text-left font-medium text-dark">Principal</th>
+                    <th class="px-4 py-3 text-left font-medium text-dark">Balance</th>
+                    <th class="px-4 py-3 text-left font-medium text-dark">APR</th>
+                    <th class="px-4 py-3 text-left font-medium text-dark">FICO</th>
+                    <th class="px-4 py-3 text-left font-medium text-dark">State</th>
+                    <th class="px-4 py-3 text-left font-medium text-dark">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-light">
+                  {sampleLoans?.map((loan) => (
+                    <tr>
+                      <td class="px-4 py-3 font-medium text-darkest">{loan.loan_reference}</td>
+                      <td class="px-4 py-3">{formatCurrency(loan.original_principal)}</td>
+                      <td class="px-4 py-3">{formatCurrency(loan.current_balance)}</td>
+                      <td class="px-4 py-3">{loan.interest_rate}%</td>
+                      <td class="px-4 py-3">{loan.fico_score || '-'}</td>
+                      <td class="px-4 py-3">{loan.borrower_state || '-'}</td>
+                      <td class="px-4 py-3">
+                        <span class={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                          loan.status === 'current' ? 'bg-green-100 text-green-700' :
+                          loan.status === 'paid_off' ? 'bg-blue-100 text-blue-700' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>
+                          {loanStatusLabels[loan.status as LoanStatus]}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {(loanCount ?? 0) > 10 && (
+              <div class="px-4 py-3 bg-lightest text-medium text-sm border-t border-light">
+                Showing 10 of {(loanCount ?? 0).toLocaleString()} loans
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Admin Notes (if any) */}
         {pool.admin_notes && (
           <div class="bg-amber-50 rounded-xl border border-amber-200 p-6">
@@ -353,4 +427,26 @@ const canUploadDocs = pool.status === 'draft' || pool.status === 'submitted';
       </div>
     </div>
   </div>
+<script define:vars={{ poolId: id }}>
+  document.getElementById('clear-loans-btn')?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete all imported loans? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/lender/pools/loans?pool_id=${poolId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        const result = await response.json();
+        alert(result.message || 'Failed to delete loans');
+      }
+    } catch (error) {
+      alert('An error occurred while deleting loans');
+    }
+  });
+</script>
 </LenderLayout>
