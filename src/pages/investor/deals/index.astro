@@ -85,7 +85,7 @@ const statusColors: Record<DealStatus, string> = {
           <label class="block text-sm font-medium text-dark mb-2">Loan Type</label>
           <select
             name="loan_type"
-            class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            class="w-full min-h-[48px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="">All loan types</option>
             <option value="consumer" selected={loanTypeFilter === 'consumer'}>Consumer Loans</option>
@@ -99,7 +99,7 @@ const statusColors: Record<DealStatus, string> = {
           <label class="block text-sm font-medium text-dark mb-2">Risk Tier</label>
           <select
             name="risk_tier"
-            class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            class="w-full min-h-[48px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="">All risk tiers</option>
             <option value="A" selected={riskTierFilter === 'A'}>A - Prime</option>
@@ -112,7 +112,7 @@ const statusColors: Record<DealStatus, string> = {
           <label class="block text-sm font-medium text-dark mb-2">Sort By</label>
           <select
             name="sort"
-            class="w-full min-h-[44px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            class="w-full min-h-[48px] px-4 rounded-lg border border-light bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="published_at" selected={sortBy === 'published_at'}>Newest First</option>
             <option value="yield" selected={sortBy === 'yield'}>Highest Yield</option>
@@ -122,14 +122,14 @@ const statusColors: Record<DealStatus, string> = {
         </div>
         <button
           type="submit"
-          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-6 rounded-lg font-semibold"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-lg font-semibold"
         >
           Apply Filters
         </button>
         {(loanTypeFilter || riskTierFilter || sortBy !== 'published_at') && (
           <a
             href="/investor/deals"
-            class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[44px] px-4 rounded-lg font-medium no-underline"
+            class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[48px] px-4 rounded-lg font-medium no-underline"
           >
             Clear
           </a>
