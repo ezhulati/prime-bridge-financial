@@ -12,13 +12,13 @@ const { user, showNav = true } = Astro.props;
 const getDashboardUrl = (role: string) => {
   switch (role) {
     case 'lender':
-      return '/lender/dashboard';
+      return '/dashboard';
     case 'investor':
-      return '/investor/dashboard';
+      return '/dashboard';
     case 'admin':
       return '/admin';
     default:
-      return '/';
+      return '/dashboard';
   }
 };
 ---
@@ -31,28 +31,28 @@ const getDashboardUrl = (role: string) => {
         <a href="/" class="flex items-center no-underline">
           <img
             src="/logo.png"
-            alt="PrimeBridge Finance"
+            alt="PrimeBridge"
             class="h-10 w-auto"
           />
         </a>
       </div>
 
-      <!-- Navigation -->
+      <!-- Navigation - Simplified for tape validation product -->
       {showNav && (
         <nav class="hidden md:flex items-center gap-8">
-          <a href="/platform" class="text-dark hover:text-darkest no-underline font-medium">
-            Platform
+          <a href="/#how-it-works" class="text-dark hover:text-darkest no-underline font-medium">
+            How It Works
           </a>
-          <a href="/lenders" class="text-dark hover:text-darkest no-underline font-medium">
-            For Lenders
+          <a href="/upload" class="text-dark hover:text-darkest no-underline font-medium">
+            Upload Tape
           </a>
-          <a href="/investors" class="text-dark hover:text-darkest no-underline font-medium">
-            For Investors
+          <a href="/dashboard" class="text-dark hover:text-darkest no-underline font-medium">
+            Dashboard
           </a>
         </nav>
       )}
 
-      <!-- Auth buttons -->
+      <!-- Auth/CTA buttons -->
       <div class="flex items-center gap-2 sm:gap-4">
         {user ? (
           <div class="flex items-center gap-2 sm:gap-4">
@@ -75,22 +75,16 @@ const getDashboardUrl = (role: string) => {
           <>
             <a
               href="/login"
-              class="text-dark hover:text-darkest no-underline font-medium text-sm sm:text-base"
+              class="hidden sm:inline text-dark hover:text-darkest no-underline font-medium text-sm sm:text-base"
             >
               Log in
             </a>
             <a
-              href="/investor/register"
-              class="hidden md:inline-flex items-center justify-center border-2 border-primary text-primary hover:bg-primary/5 min-h-[40px] px-5 rounded-md font-semibold no-underline"
-            >
-              Invest
-            </a>
-            <a
-              href="/lender/register"
+              href="/upload"
               class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[36px] sm:min-h-[40px] px-3 sm:px-5 rounded-md font-semibold no-underline text-sm sm:text-base whitespace-nowrap"
             >
-              <span class="sm:hidden">List Pools</span>
-              <span class="hidden sm:inline">List Loan Pools</span>
+              <span class="sm:hidden">Upload</span>
+              <span class="hidden sm:inline">Upload Tape</span>
             </a>
           </>
         )}

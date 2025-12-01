@@ -11,22 +11,28 @@
         <a href="/" class="inline-block mb-4 no-underline">
           <img
             src="/logo.png"
-            alt="PrimeBridge Finance"
+            alt="PrimeBridge"
             class="h-10 w-auto"
           />
         </a>
-        <p class="text-dark text-base max-w-md">
-          The private credit infrastructure layer. We standardize the pipe, not the product.
+        <p class="text-dark text-base max-w-md mb-6">
+          Loan tape validation for fintech lenders. Upload messy CSVs, get investor-ready data.
         </p>
+        <a
+          href="/upload"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[44px] px-6 rounded-md font-semibold no-underline text-base"
+        >
+          Upload your first tape
+        </a>
       </div>
 
       <!-- Navigation Links (no underlines needed per Practical UI) -->
-      <nav aria-label="Platform links">
-        <h4 class="font-semibold text-darkest mb-4">Platform</h4>
+      <nav aria-label="Product links">
+        <h4 class="font-semibold text-darkest mb-4">Product</h4>
         <ul class="space-y-3">
-          <li><a href="/platform" class="text-dark hover:text-darkest no-underline">Why PrimeBridge</a></li>
-          <li><a href="/lender/register" class="text-dark hover:text-darkest no-underline">List loan pools</a></li>
-          <li><a href="/investor/register" class="text-dark hover:text-darkest no-underline">Investor access</a></li>
+          <li><a href="/upload" class="text-dark hover:text-darkest no-underline">Upload Tape</a></li>
+          <li><a href="/dashboard" class="text-dark hover:text-darkest no-underline">Dashboard</a></li>
+          <li><a href="/#how-it-works" class="text-dark hover:text-darkest no-underline">How It Works</a></li>
         </ul>
       </nav>
 
@@ -41,14 +47,16 @@
       </nav>
     </div>
 
-    <!-- Disclaimer -->
+    <!-- Contact + Copyright -->
     <div class="mt-12 pt-8 border-t border-light">
-      <p class="text-sm text-dark leading-relaxed">
-        PrimeBridge Finance is a technology platform, not a bank. Loans are issued by partner financial institutions and/or special purpose entities. Investing in private credit involves risk, including loss of principal. This site is for informational purposes only and does not constitute an offer or solicitation of securities.
-      </p>
-      <p class="text-sm text-dark mt-4">
-        &copy; {new Date().getFullYear()} PrimeBridge Finance. All rights reserved.
-      </p>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <p class="text-sm text-dark">
+          Questions? <a href="mailto:hello@primebridge.finance" class="text-primary hover:text-primary-hover underline">hello@primebridge.finance</a>
+        </p>
+        <p class="text-sm text-dark">
+          &copy; {new Date().getFullYear()} PrimeBridge. All rights reserved.
+        </p>
+      </div>
     </div>
   </div>
 </footer>

@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { TapeValidator } from '../components/TapeValidator';
+---
+
+<BaseLayout
+  title="Upload Loan Tape"
+  description="Upload your loan tape CSV and get instant validation. Catch missing FICOs, invalid APRs, and format errors before your investors do."
+>
+  <Header showNav={true} />
+
+  <main class="bg-lightest min-h-screen">
+    <!-- Hero Section -->
+    <section class="bg-white border-b border-light">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div class="max-w-3xl">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-darkest leading-tight">
+            Validate your loan tape in seconds
+          </h1>
+          <p class="mt-4 text-lg sm:text-xl text-dark max-w-2xl">
+            Upload any CSV or Excel file. We'll automatically detect your columns, flag errors, and give you a clean, investor-ready tape.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-4 text-sm text-dark">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>No signup required</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Data stays in your browser</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Export clean CSV instantly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Validator Section -->
+    <section class="py-8 lg:py-12">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <TapeValidator client:load />
+      </div>
+    </section>
+
+    <!-- What We Check Section -->
+    <section class="bg-white border-t border-light py-12 lg:py-16">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl sm:text-3xl font-bold text-darkest text-center mb-12">
+          What we validate
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Validation Item 1 -->
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-error/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest">Missing FICO Scores</h3>
+              <p class="mt-1 text-dark text-sm">Flag loans with missing or invalid credit scores (must be 300-850)</p>
+            </div>
+          </div>
+
+          <!-- Validation Item 2 -->
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-error/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest">Invalid APR/Rates</h3>
+              <p class="mt-1 text-dark text-sm">Catch APRs over 100% or negative rates that signal data errors</p>
+            </div>
+          </div>
+
+          <!-- Validation Item 3 -->
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-error/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest">Duplicate Loan IDs</h3>
+              <p class="mt-1 text-dark text-sm">Identify duplicate records that inflate your portfolio metrics</p>
+            </div>
+          </div>
+
+          <!-- Validation Item 4 -->
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest">Invalid State Codes</h3>
+              <p class="mt-1 text-dark text-sm">Verify all state codes are valid US states</p>
+            </div>
+          </div>
+
+          <!-- Validation Item 5 -->
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest">Date Format Issues</h3>
+              <p class="mt-1 text-dark text-sm">Standardize dates from any format to ISO standard</p>
+            </div>
+          </div>
+
+          <!-- Validation Item 6 -->
+          <div class="flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-darkest">Principal Amounts</h3>
+              <p class="mt-1 text-dark text-sm">Flag zero, negative, or suspiciously high loan amounts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-primary py-12 lg:py-16">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">
+          Need more than validation?
+        </h2>
+        <p class="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+          Track covenants, generate investor reports, and manage multiple tapes. Book a demo to see the full platform.
+        </p>
+        <a
+          href="/contact"
+          class="inline-flex items-center justify-center bg-white text-primary hover:bg-gray-100 min-h-[48px] px-8 rounded-md font-semibold no-underline text-base transition-colors"
+        >
+          Book a demo
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

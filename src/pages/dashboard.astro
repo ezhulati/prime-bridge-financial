@@ -1,0 +1,221 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+---
+
+<BaseLayout
+  title="Dashboard"
+  description="View your uploaded loan tapes, validation scores, and portfolio analytics."
+>
+  <Header showNav={true} />
+
+  <main class="bg-lightest min-h-screen">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-darkest">Dashboard</h1>
+          <p class="mt-1 text-dark">Track your uploaded tapes and validation scores</p>
+        </div>
+        <a
+          href="/upload"
+          class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline whitespace-nowrap"
+        >
+          Upload new tape
+        </a>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+        <div class="bg-white rounded-xl border border-light p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl sm:text-3xl font-bold text-darkest" id="stat-tapes">0</p>
+          <p class="text-sm text-dark">Tapes Uploaded</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-light p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl sm:text-3xl font-bold text-darkest" id="stat-loans">0</p>
+          <p class="text-sm text-dark">Total Loans</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-light p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl sm:text-3xl font-bold text-darkest" id="stat-valid">-</p>
+          <p class="text-sm text-dark">Avg. Validation</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-light p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl sm:text-3xl font-bold text-darkest" id="stat-issues">0</p>
+          <p class="text-sm text-dark">Total Issues</p>
+        </div>
+      </div>
+
+      <!-- Recent Tapes -->
+      <div class="bg-white rounded-xl border border-light overflow-hidden">
+        <div class="p-5 border-b border-light">
+          <h2 class="text-lg font-bold text-darkest">Recent Tapes</h2>
+        </div>
+
+        <div id="tapes-list">
+          <!-- Empty state -->
+          <div id="empty-state" class="p-12 text-center">
+            <div class="w-16 h-16 rounded-full bg-lightest mx-auto mb-4 flex items-center justify-center">
+              <svg class="w-8 h-8 text-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-darkest mb-2">No tapes uploaded yet</h3>
+            <p class="text-dark max-w-sm mx-auto mb-6">
+              Upload your first loan tape to see validation results and track your portfolio.
+            </p>
+            <a
+              href="/upload"
+              class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+            >
+              Upload your first tape
+            </a>
+          </div>
+
+          <!-- Tapes will be populated here -->
+          <div id="tapes-content" class="divide-y divide-light hidden"></div>
+        </div>
+      </div>
+
+      <!-- Coming Soon: Covenants Preview -->
+      <div class="mt-8 bg-white rounded-xl border border-light p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="text-lg font-bold text-darkest">Covenant Monitoring</h3>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                Coming Soon
+              </span>
+            </div>
+            <p class="text-dark text-sm">
+              Track DSCR, delinquency rates, and charge-off limits in real-time. Get alerts before covenant breaches happen.
+            </p>
+          </div>
+          <a
+            href="/covenants"
+            class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[44px] px-5 rounded-md font-medium no-underline whitespace-nowrap"
+          >
+            Preview covenants
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  // Load tapes from localStorage (demo purposes)
+  function loadDashboard() {
+    const tapesJson = localStorage.getItem('primebridge_tapes');
+    const tapes = tapesJson ? JSON.parse(tapesJson) : [];
+
+    // Update stats
+    const statTapes = document.getElementById('stat-tapes');
+    const statLoans = document.getElementById('stat-loans');
+    const statValid = document.getElementById('stat-valid');
+    const statIssues = document.getElementById('stat-issues');
+    const emptyState = document.getElementById('empty-state');
+    const tapesContent = document.getElementById('tapes-content');
+
+    if (tapes.length === 0) {
+      if (statTapes) statTapes.textContent = '0';
+      if (statLoans) statLoans.textContent = '0';
+      if (statValid) statValid.textContent = '-';
+      if (statIssues) statIssues.textContent = '0';
+      return;
+    }
+
+    // Calculate totals
+    const totalLoans = tapes.reduce((sum: number, t: any) => sum + (t.totalRows || 0), 0);
+    const totalIssues = tapes.reduce((sum: number, t: any) => sum + (t.errors || 0) + (t.warnings || 0), 0);
+    const avgValidation = tapes.reduce((sum: number, t: any) => sum + (t.validationScore || 0), 0) / tapes.length;
+
+    if (statTapes) statTapes.textContent = tapes.length.toString();
+    if (statLoans) statLoans.textContent = totalLoans.toLocaleString();
+    if (statValid) statValid.textContent = avgValidation.toFixed(0) + '%';
+    if (statIssues) statIssues.textContent = totalIssues.toLocaleString();
+
+    // Show tapes list
+    if (emptyState) emptyState.classList.add('hidden');
+    if (tapesContent) {
+      tapesContent.classList.remove('hidden');
+      tapesContent.innerHTML = tapes.slice(0, 10).map((tape: any) => `
+        <div class="p-5 hover:bg-lightest transition-colors">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-3 mb-1">
+                <h4 class="font-semibold text-darkest truncate">${tape.name || 'Untitled Tape'}</h4>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                  tape.validationScore >= 90 ? 'bg-success/10 text-success' :
+                  tape.validationScore >= 70 ? 'bg-warning/10 text-warning' :
+                  'bg-error/10 text-error'
+                }">
+                  ${tape.validationScore?.toFixed(0) || 0}% valid
+                </span>
+              </div>
+              <p class="text-dark text-sm">
+                ${tape.totalRows || 0} loans &bull;
+                ${tape.errors || 0} errors &bull;
+                ${tape.warnings || 0} warnings &bull;
+                ${new Date(tape.uploadedAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <button
+                onclick="deleteTape('${tape.id}')"
+                class="inline-flex items-center justify-center text-dark hover:text-error min-h-[36px] px-3 rounded font-medium text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Delete a tape
+  (window as any).deleteTape = function(id: string) {
+    const tapesJson = localStorage.getItem('primebridge_tapes');
+    const tapes = tapesJson ? JSON.parse(tapesJson) : [];
+    const filtered = tapes.filter((t: any) => t.id !== id);
+    localStorage.setItem('primebridge_tapes', JSON.stringify(filtered));
+    loadDashboard();
+  };
+
+  // Load on page ready
+  document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>

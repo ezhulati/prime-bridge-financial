@@ -1,0 +1,253 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+// Sample covenant data for demo
+const sampleCovenants = [
+  {
+    id: '1',
+    name: 'Debt Service Coverage Ratio',
+    metric: 'DSCR',
+    operator: 'gte',
+    threshold: 1.25,
+    currentValue: 1.42,
+    status: 'ok',
+    trend: 'up',
+  },
+  {
+    id: '2',
+    name: '30+ Day Delinquency Rate',
+    metric: '30_DPD',
+    operator: 'lte',
+    threshold: 5.0,
+    currentValue: 3.8,
+    status: 'ok',
+    trend: 'stable',
+  },
+  {
+    id: '3',
+    name: '60+ Day Delinquency Rate',
+    metric: '60_DPD',
+    operator: 'lte',
+    threshold: 3.0,
+    currentValue: 2.7,
+    status: 'warning',
+    trend: 'up',
+  },
+  {
+    id: '4',
+    name: 'Charge-Off Rate',
+    metric: 'charge_off',
+    operator: 'lte',
+    threshold: 2.0,
+    currentValue: 2.3,
+    status: 'breach',
+    trend: 'up',
+  },
+  {
+    id: '5',
+    name: 'Advance Rate',
+    metric: 'advance_rate',
+    operator: 'lte',
+    threshold: 85.0,
+    currentValue: 78.5,
+    status: 'ok',
+    trend: 'down',
+  },
+  {
+    id: '6',
+    name: 'Weighted Average FICO',
+    metric: 'avg_fico',
+    operator: 'gte',
+    threshold: 680,
+    currentValue: 712,
+    status: 'ok',
+    trend: 'stable',
+  },
+];
+
+const statusColors: Record<string, { bg: string; text: string; border: string }> = {
+  ok: { bg: 'bg-success/10', text: 'text-success', border: 'border-success/20' },
+  warning: { bg: 'bg-warning/10', text: 'text-warning', border: 'border-warning/20' },
+  breach: { bg: 'bg-error/10', text: 'text-error', border: 'border-error/20' },
+};
+
+const getOperatorSymbol = (op: string): string => {
+  const symbols: Record<string, string> = {
+    gt: '>',
+    lt: '<',
+    gte: '≥',
+    lte: '≤',
+    eq: '=',
+  };
+  return symbols[op] || op;
+};
+
+const formatValue = (value: number, metric: string): string => {
+  if (metric === 'avg_fico') return value.toFixed(0);
+  if (metric.includes('rate') || metric.includes('DPD') || metric === 'charge_off' || metric === 'advance_rate') return value.toFixed(1) + '%';
+  return value.toFixed(2) + 'x';
+};
+---
+
+<BaseLayout
+  title="Covenant Monitor"
+  description="Track portfolio covenants in real-time. Get alerts before breaches happen."
+>
+  <Header showNav={true} />
+
+  <main class="bg-lightest min-h-screen">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <h1 class="text-2xl sm:text-3xl font-bold text-darkest">Covenant Monitor</h1>
+            <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-primary/10 text-primary">
+              Demo
+            </span>
+          </div>
+          <p class="text-dark">Track portfolio triggers and get alerts before covenant breaches</p>
+        </div>
+        <button
+          class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[44px] px-5 rounded-md font-medium cursor-not-allowed opacity-60"
+          disabled
+        >
+          Add Covenant
+        </button>
+      </div>
+
+      <!-- Demo Banner -->
+      <div class="bg-primary/5 border border-primary/10 rounded-xl p-5 mb-8">
+        <div class="flex gap-4">
+          <div class="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-semibold text-darkest mb-1">This is a demo with sample data</h3>
+            <p class="text-dark text-sm">
+              In the full version, covenants are calculated from your uploaded loan tapes in real-time.
+              Set thresholds, get email alerts, and export compliance reports.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-3 gap-4 lg:gap-6 mb-8">
+        <div class="bg-white rounded-xl border border-light p-5 text-center">
+          <p class="text-3xl sm:text-4xl font-bold text-success mb-1">4</p>
+          <p class="text-sm text-dark">OK</p>
+        </div>
+        <div class="bg-white rounded-xl border border-light p-5 text-center">
+          <p class="text-3xl sm:text-4xl font-bold text-warning mb-1">1</p>
+          <p class="text-sm text-dark">Warning</p>
+        </div>
+        <div class="bg-white rounded-xl border border-light p-5 text-center">
+          <p class="text-3xl sm:text-4xl font-bold text-error mb-1">1</p>
+          <p class="text-sm text-dark">Breach</p>
+        </div>
+      </div>
+
+      <!-- Covenant Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+        {sampleCovenants.map((covenant) => {
+          const colors = statusColors[covenant.status];
+          return (
+            <div
+              class={`bg-white rounded-xl border ${covenant.status === 'breach' ? 'border-error/30' : covenant.status === 'warning' ? 'border-warning/30' : 'border-light'} p-5`}
+            >
+              <div class="flex items-start justify-between mb-4">
+                <div>
+                  <h3 class="font-semibold text-darkest">{covenant.name}</h3>
+                  <p class="text-sm text-dark mt-0.5">
+                    Target: {getOperatorSymbol(covenant.operator)} {formatValue(covenant.threshold, covenant.metric)}
+                  </p>
+                </div>
+                <span class={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text}`}>
+                  {covenant.status === 'ok' ? 'OK' : covenant.status === 'warning' ? 'Warning' : 'Breach'}
+                </span>
+              </div>
+
+              <div class="flex items-end justify-between">
+                <div>
+                  <p class="text-sm text-dark mb-1">Current Value</p>
+                  <p class={`text-2xl sm:text-3xl font-bold ${covenant.status === 'breach' ? 'text-error' : covenant.status === 'warning' ? 'text-warning' : 'text-darkest'}`}>
+                    {formatValue(covenant.currentValue, covenant.metric)}
+                  </p>
+                </div>
+                <div class="flex items-center gap-1 text-sm">
+                  {covenant.trend === 'up' && (
+                    <svg class={`w-4 h-4 ${covenant.operator === 'gte' ? 'text-success' : 'text-error'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                  )}
+                  {covenant.trend === 'down' && (
+                    <svg class={`w-4 h-4 ${covenant.operator === 'lte' ? 'text-success' : 'text-error'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  )}
+                  {covenant.trend === 'stable' && (
+                    <svg class="w-4 h-4 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14" />
+                    </svg>
+                  )}
+                  <span class="text-dark capitalize">{covenant.trend}</span>
+                </div>
+              </div>
+
+              <!-- Progress bar -->
+              <div class="mt-4">
+                <div class="h-2 bg-lightest rounded-full overflow-hidden">
+                  {(() => {
+                    const isGte = covenant.operator === 'gte';
+                    const progress = isGte
+                      ? Math.min((covenant.currentValue / covenant.threshold) * 100, 150)
+                      : Math.min((covenant.currentValue / covenant.threshold) * 100, 150);
+                    const progressColor = covenant.status === 'breach' ? 'bg-error' : covenant.status === 'warning' ? 'bg-warning' : 'bg-success';
+                    return (
+                      <div
+                        class={`h-full ${progressColor} rounded-full transition-all`}
+                        style={`width: ${Math.min(progress, 100)}%`}
+                      />
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- CTA Section -->
+      <div class="mt-12 bg-white rounded-xl border border-light p-8 text-center">
+        <h2 class="text-xl sm:text-2xl font-bold text-darkest mb-3">
+          Want real-time covenant monitoring?
+        </h2>
+        <p class="text-dark max-w-2xl mx-auto mb-6">
+          Connect your loan tapes, set custom thresholds, and get email alerts before you breach.
+          Never miss a covenant again.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href="/upload"
+            class="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
+          >
+            Upload your tape
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center justify-center border border-light text-dark hover:bg-lightest min-h-[48px] px-6 rounded-md font-medium no-underline"
+          >
+            Book a demo
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
