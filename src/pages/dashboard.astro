@@ -11,6 +11,29 @@ import Footer from '../components/layout/Footer.astro';
   <Header showNav={true} />
 
   <main class="bg-lightest min-h-screen">
+    <!-- Auth Banner - shown to non-logged-in users -->
+    <div id="auth-banner" class="hidden bg-gradient-to-r from-primary to-primary-hover">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-3 text-white">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p class="text-sm sm:text-base">
+              <span class="font-semibold">Your data is stored locally</span>
+              <span class="hidden sm:inline"> — it can be lost if you clear your browser. Sign up to save permanently.</span>
+            </p>
+          </div>
+          <a
+            href="/signup?redirect=/dashboard"
+            class="inline-flex items-center justify-center bg-white text-primary hover:bg-gray-100 min-h-[48px] px-5 rounded-md font-semibold no-underline text-sm whitespace-nowrap transition-colors"
+          >
+            Create free account
+          </a>
+        </div>
+      </div>
+    </div>
+
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -137,6 +160,16 @@ import Footer from '../components/layout/Footer.astro';
 </BaseLayout>
 
 <script>
+  // Check auth and show banner if not logged in
+  function checkAuthBanner() {
+    const isLoggedIn = document.cookie.includes('sb-access-token') ||
+                       localStorage.getItem('primebridge_auth') === 'true';
+    const banner = document.getElementById('auth-banner');
+    if (banner && !isLoggedIn) {
+      banner.classList.remove('hidden');
+    }
+  }
+
   // Load tapes from localStorage (demo purposes)
   function loadDashboard() {
     const tapesJson = localStorage.getItem('primebridge_tapes');
@@ -217,5 +250,8 @@ import Footer from '../components/layout/Footer.astro';
   };
 
   // Load on page ready
-  document.addEventListener('DOMContentLoaded', loadDashboard);
+  document.addEventListener('DOMContentLoaded', () => {
+    checkAuthBanner();
+    loadDashboard();
+  });
 </script>
