@@ -154,7 +154,7 @@ export function InvestmentForm({ deal, onSuccess, onCancel }: InvestmentFormProp
         </p>
         <a
           href="/investor/settings#payment-methods"
-          className="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[40px] px-6 rounded-md font-semibold no-underline"
+          className="inline-flex items-center justify-center bg-primary text-white hover:bg-primary-hover min-h-[48px] px-6 rounded-md font-semibold no-underline"
         >
           Link Bank Account
         </a>
