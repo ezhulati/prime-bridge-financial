@@ -356,8 +356,9 @@ export function TapeValidator() {
     }
   };
 
-  // Save to dashboard
-  const saveToDashboard = (fileName: string, validationResult: ValidationSummary) => {
+  // Save to dashboard (Supabase if logged in, localStorage as fallback)
+  const saveToDashboard = async (fileName: string, validationResult: ValidationSummary) => {
+    const validationScore = Math.round((validationResult.validRows / validationResult.totalRows) * 100);
     const tapeRecord = {
       id: crypto.randomUUID(),
       name: fileName,
@@ -365,12 +366,41 @@ export function TapeValidator() {
       validRows: validationResult.validRows,
       errors: validationResult.errors,
       warnings: validationResult.warnings,
-      validationScore: Math.round((validationResult.validRows / validationResult.totalRows) * 100),
+      validationScore,
       uploadedAt: new Date().toISOString()
     };
+
+    // Always save to localStorage (for offline access and non-logged-in users)
     const existingTapes = JSON.parse(localStorage.getItem('primebridge_tapes') || '[]');
     existingTapes.unshift(tapeRecord);
     localStorage.setItem('primebridge_tapes', JSON.stringify(existingTapes.slice(0, 50)));
+
+    // If logged in, also save to Supabase
+    if (isLoggedIn) {
+      try {
+        const response = await fetch('/api/tapes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: fileName,
+            fileName: fileName,
+            totalRows: validationResult.totalRows,
+            validationScore,
+            errors: validationResult.errors,
+            warnings: validationResult.warnings,
+            validationData: {
+              issues: validationResult.issues.slice(0, 100), // Limit stored issues
+              columnMapping: validationResult.columnMapping,
+            },
+          }),
+        });
+        if (!response.ok) {
+          console.error('Failed to save tape to cloud:', await response.text());
+        }
+      } catch (err) {
+        console.error('Failed to save tape to cloud:', err);
+      }
+    }
   };
 
   // Handle unlock - redirect to signup with return URL

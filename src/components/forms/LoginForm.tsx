@@ -44,6 +44,25 @@ export function LoginForm({ redirectUrl }: LoginFormProps) {
       // Mark as authenticated for demo
       localStorage.setItem('primebridge_auth', 'true');
 
+      // Migrate any localStorage tapes to Supabase
+      try {
+        const existingTapes = JSON.parse(localStorage.getItem('primebridge_tapes') || '[]');
+        if (existingTapes.length > 0) {
+          const migrateResponse = await fetch('/api/tapes/migrate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tapes: existingTapes }),
+          });
+          if (migrateResponse.ok) {
+            // Clear localStorage after successful migration
+            localStorage.removeItem('primebridge_tapes');
+          }
+        }
+      } catch (migrateErr) {
+        console.error('Failed to migrate tapes:', migrateErr);
+        // Don't block login if migration fails
+      }
+
       // Use custom redirect or default based on role
       window.location.href = redirectUrl || result.redirectUrl || '/';
     } catch (err) {

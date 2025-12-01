@@ -7,6 +7,8 @@ import { SignupForm } from '../components/forms/SignupForm';
 const url = new URL(Astro.request.url);
 const redirectUrl = url.searchParams.get('redirect') || '';
 const unlockPending = url.searchParams.get('unlock') === 'true';
+const roleParam = url.searchParams.get('role');
+const defaultRole = roleParam === 'lender' || roleParam === 'investor' ? roleParam : undefined;
 ---
 
 <BaseLayout
@@ -93,6 +95,7 @@ const unlockPending = url.searchParams.get('unlock') === 'true';
 
             <SignupForm
               client:load
+              defaultRole={defaultRole}
               redirectUrl={redirectUrl}
               unlockPending={unlockPending}
             />

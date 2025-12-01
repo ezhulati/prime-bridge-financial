@@ -53,6 +53,25 @@ export function SignupForm({ defaultRole, redirectUrl, unlockPending }: SignupFo
       // Mark as authenticated for demo
       localStorage.setItem('primebridge_auth', 'true');
 
+      // Migrate any localStorage tapes to Supabase
+      try {
+        const existingTapes = JSON.parse(localStorage.getItem('primebridge_tapes') || '[]');
+        if (existingTapes.length > 0) {
+          const migrateResponse = await fetch('/api/tapes/migrate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tapes: existingTapes }),
+          });
+          if (migrateResponse.ok) {
+            // Clear localStorage after successful migration
+            localStorage.removeItem('primebridge_tapes');
+          }
+        }
+      } catch (migrateErr) {
+        console.error('Failed to migrate tapes:', migrateErr);
+        // Don't block signup if migration fails
+      }
+
       // If unlocking pending validation, go back to upload with unlock flag
       if (unlockPending && redirectUrl) {
         window.location.href = `${redirectUrl}?unlocked=true`;

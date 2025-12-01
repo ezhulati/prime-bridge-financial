@@ -25,7 +25,7 @@ import Footer from '../components/layout/Footer.astro';
             </p>
           </div>
           <a
-            href="/signup?redirect=/dashboard"
+            href="/signup?role=lender&redirect=/dashboard"
             class="inline-flex items-center justify-center bg-white text-primary hover:bg-gray-100 min-h-[48px] px-5 rounded-md font-semibold no-underline text-sm whitespace-nowrap transition-colors"
           >
             Create free account
@@ -160,20 +160,64 @@ import Footer from '../components/layout/Footer.astro';
 </BaseLayout>
 
 <script>
+  let isLoggedIn = false;
+
   // Check auth and show banner if not logged in
   function checkAuthBanner() {
-    const isLoggedIn = document.cookie.includes('sb-access-token') ||
-                       localStorage.getItem('primebridge_auth') === 'true';
+    isLoggedIn = document.cookie.includes('sb-access-token') ||
+                 localStorage.getItem('primebridge_auth') === 'true';
     const banner = document.getElementById('auth-banner');
     if (banner && !isLoggedIn) {
       banner.classList.remove('hidden');
     }
+    return isLoggedIn;
   }
 
-  // Load tapes from localStorage (demo purposes)
-  function loadDashboard() {
-    const tapesJson = localStorage.getItem('primebridge_tapes');
-    const tapes = tapesJson ? JSON.parse(tapesJson) : [];
+  // Normalize tape data from API or localStorage
+  function normalizeTape(tape: any, isFromApi: boolean): any {
+    if (isFromApi) {
+      return {
+        id: tape.id,
+        name: tape.name,
+        fileName: tape.file_name,
+        totalRows: tape.total_rows,
+        validationScore: parseFloat(tape.validation_score),
+        errors: tape.errors,
+        warnings: tape.warnings,
+        uploadedAt: tape.uploaded_at,
+        validationData: tape.validation_data,
+      };
+    }
+    return tape;
+  }
+
+  // Load tapes from Supabase (if logged in) or localStorage
+  async function loadDashboard() {
+    let tapes: any[] = [];
+
+    if (isLoggedIn) {
+      // Try to load from Supabase
+      try {
+        const response = await fetch('/api/tapes');
+        if (response.ok) {
+          const data = await response.json();
+          tapes = (data.tapes || []).map((t: any) => normalizeTape(t, true));
+        } else {
+          // Fallback to localStorage on API error
+          const tapesJson = localStorage.getItem('primebridge_tapes');
+          tapes = tapesJson ? JSON.parse(tapesJson) : [];
+        }
+      } catch (err) {
+        console.error('Error loading tapes from API:', err);
+        // Fallback to localStorage
+        const tapesJson = localStorage.getItem('primebridge_tapes');
+        tapes = tapesJson ? JSON.parse(tapesJson) : [];
+      }
+    } else {
+      // Not logged in - load from localStorage
+      const tapesJson = localStorage.getItem('primebridge_tapes');
+      tapes = tapesJson ? JSON.parse(tapesJson) : [];
+    }
 
     // Update stats
     const statTapes = document.getElementById('stat-tapes');
@@ -188,6 +232,8 @@ import Footer from '../components/layout/Footer.astro';
       if (statLoans) statLoans.textContent = '0';
       if (statValid) statValid.textContent = '-';
       if (statIssues) statIssues.textContent = '0';
+      if (emptyState) emptyState.classList.remove('hidden');
+      if (tapesContent) tapesContent.classList.add('hidden');
       return;
     }
 
@@ -240,12 +286,25 @@ import Footer from '../components/layout/Footer.astro';
     }
   }
 
-  // Delete a tape
-  (window as any).deleteTape = function(id: string) {
+  // Delete a tape (from API if logged in, otherwise localStorage)
+  (window as any).deleteTape = async function(id: string) {
+    if (isLoggedIn) {
+      try {
+        const response = await fetch(`/api/tapes/${id}`, { method: 'DELETE' });
+        if (!response.ok) {
+          console.error('Failed to delete tape from API');
+        }
+      } catch (err) {
+        console.error('Error deleting tape:', err);
+      }
+    }
+
+    // Always remove from localStorage too
     const tapesJson = localStorage.getItem('primebridge_tapes');
     const tapes = tapesJson ? JSON.parse(tapesJson) : [];
     const filtered = tapes.filter((t: any) => t.id !== id);
     localStorage.setItem('primebridge_tapes', JSON.stringify(filtered));
+
     loadDashboard();
   };
 
