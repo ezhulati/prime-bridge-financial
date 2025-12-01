@@ -8,8 +8,8 @@ const authUser = await getAuthUser(Astro.cookies);
 ---
 
 <BaseLayout
-  title="Terms of Service | PrimeBridge Finance"
-  description="Terms and conditions governing use of the PrimeBridge Finance platform."
+  title="Terms of Service | PrimeBridge"
+  description="Terms and conditions governing use of the PrimeBridge loan tape validation platform."
 >
   <Header user={authUser?.user} />
 
@@ -29,132 +29,164 @@ const authUser = await getAuthUser(Astro.cookies);
         <section class="mb-12">
           <h2 class="text-2xl font-bold text-darkest mb-4">1. Acceptance of Terms</h2>
           <p class="leading-relaxed mb-4">
-            By accessing or using the PrimeBridge Finance platform ("Platform"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Platform.
+            By accessing or using the PrimeBridge platform ("Platform"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Platform.
           </p>
         </section>
 
         <section class="mb-12">
           <h2 class="text-2xl font-bold text-darkest mb-4">2. Description of Service</h2>
           <p class="leading-relaxed mb-4">
-            PrimeBridge Finance is a technology platform that connects fintech lenders with accredited investors. We provide infrastructure for loan pool listings, investor matching, and transaction workflows.
+            PrimeBridge provides loan tape validation, data standardization, and portfolio monitoring tools for fintech lenders. Our services include:
           </p>
+          <ul class="list-disc pl-6 space-y-2 mb-4">
+            <li>Loan tape validation and error detection</li>
+            <li>Column mapping and data standardization</li>
+            <li>Covenant monitoring and alerting</li>
+            <li>Investor reporting tools</li>
+            <li>API access for enterprise customers</li>
+          </ul>
           <p class="leading-relaxed mb-4">
-            <strong>Important:</strong> PrimeBridge Finance is not a bank, broker-dealer, or investment adviser. We do not provide investment advice, guarantee returns, or take custody of funds. All investment decisions are made solely by the parties involved.
+            <strong>Important:</strong> PrimeBridge is a data validation and analytics tool. We do not provide investment advice, credit decisions, or financial services. You are solely responsible for how you use our output and any decisions based on it.
           </p>
         </section>
 
         <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">3. User Accounts</h2>
+          <h2 class="text-2xl font-bold text-darkest mb-4">3. Free Tier</h2>
+          <p class="leading-relaxed mb-4">
+            Our free validation tool processes files locally in your browser. When using the free tier:
+          </p>
+          <ul class="list-disc pl-6 space-y-2 mb-4">
+            <li>Your data is processed entirely on your device</li>
+            <li>We do not upload or store your loan tape data</li>
+            <li>No account registration is required</li>
+            <li>Features may be limited compared to paid plans</li>
+          </ul>
+        </section>
+
+        <section class="mb-12">
+          <h2 class="text-2xl font-bold text-darkest mb-4">4. Paid Subscriptions</h2>
+          <p class="leading-relaxed mb-4">
+            Paid plans provide additional features including cloud processing, API access, custom validation rules, and dedicated support. If you subscribe to a paid plan:
+          </p>
+          <ul class="list-disc pl-6 space-y-2 mb-4">
+            <li>You agree to pay the applicable subscription fees</li>
+            <li>Subscriptions automatically renew unless cancelled</li>
+            <li>Refunds are provided as described in your subscription agreement</li>
+            <li>We may change pricing with 30 days notice</li>
+          </ul>
+        </section>
+
+        <section class="mb-12">
+          <h2 class="text-2xl font-bold text-darkest mb-4">5. User Accounts</h2>
           <h3 class="text-xl font-semibold text-darkest mb-3">Registration</h3>
           <p class="leading-relaxed mb-4">
             To use certain features of the Platform, you must register for an account. You agree to provide accurate, current, and complete information during registration and to update such information as necessary.
           </p>
           <h3 class="text-xl font-semibold text-darkest mb-3">Account Security</h3>
           <p class="leading-relaxed mb-4">
-            You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.
+            You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Notify us immediately of any unauthorized access.
           </p>
         </section>
 
         <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">4. Lender Terms</h2>
+          <h2 class="text-2xl font-bold text-darkest mb-4">6. Acceptable Use</h2>
           <p class="leading-relaxed mb-4">
-            If you register as a lender, you represent and warrant that:
+            You agree to use the Platform only for lawful purposes and in accordance with these Terms. You agree not to:
           </p>
           <ul class="list-disc pl-6 space-y-2 mb-4">
-            <li>You have the legal authority to list loan pools on the Platform</li>
-            <li>All information provided about your loan pools is accurate and complete</li>
-            <li>You will comply with all applicable laws and regulations</li>
-            <li>You have proper licensing for your lending activities</li>
-          </ul>
-        </section>
-
-        <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">5. Investor Terms</h2>
-          <p class="leading-relaxed mb-4">
-            If you register as an investor, you represent and warrant that:
-          </p>
-          <ul class="list-disc pl-6 space-y-2 mb-4">
-            <li>You meet the definition of an "accredited investor" under applicable securities laws</li>
-            <li>You understand the risks associated with private credit investments</li>
-            <li>You are making investment decisions based on your own judgment</li>
-            <li>You have sufficient financial resources to bear the risk of loss</li>
-          </ul>
-        </section>
-
-        <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">6. Fees</h2>
-          <p class="leading-relaxed mb-4">
-            PrimeBridge Finance charges transaction fees as described on our pricing page. We reserve the right to modify our fee structure with prior notice to users.
-          </p>
-        </section>
-
-        <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">7. Prohibited Conduct</h2>
-          <p class="leading-relaxed mb-4">
-            You agree not to:
-          </p>
-          <ul class="list-disc pl-6 space-y-2 mb-4">
-            <li>Provide false or misleading information</li>
-            <li>Use the Platform for any unlawful purpose</li>
-            <li>Attempt to gain unauthorized access to our systems</li>
-            <li>Interfere with the proper functioning of the Platform</li>
             <li>Violate any applicable laws or regulations</li>
-            <li>Infringe on the rights of others</li>
+            <li>Upload malicious files or attempt to compromise our systems</li>
+            <li>Reverse engineer, decompile, or disassemble the Platform</li>
+            <li>Share account credentials with unauthorized users</li>
+            <li>Use the Platform to process data you don't have rights to</li>
+            <li>Attempt to circumvent usage limits or access controls</li>
           </ul>
+        </section>
+
+        <section class="mb-12">
+          <h2 class="text-2xl font-bold text-darkest mb-4">7. Your Data</h2>
+          <p class="leading-relaxed mb-4">
+            You retain all rights to the loan tape data you process through our Platform. By using our services, you grant us a limited license to process your data solely to provide the services you requested.
+          </p>
+          <p class="leading-relaxed mb-4">
+            You represent and warrant that you have all necessary rights to the data you upload and that your use of our Platform does not violate any third-party rights or applicable laws.
+          </p>
         </section>
 
         <section class="mb-12">
           <h2 class="text-2xl font-bold text-darkest mb-4">8. Intellectual Property</h2>
           <p class="leading-relaxed mb-4">
-            The Platform and its contents, including text, graphics, logos, and software, are the property of PrimeBridge Finance and are protected by intellectual property laws. You may not reproduce, distribute, or create derivative works without our permission.
+            The Platform and its contents, including software, algorithms, text, graphics, and logos, are the property of PrimeBridge and are protected by intellectual property laws. You may not reproduce, distribute, or create derivative works without our permission.
           </p>
         </section>
 
         <section class="mb-12">
           <h2 class="text-2xl font-bold text-darkest mb-4">9. Disclaimers</h2>
           <p class="leading-relaxed mb-4">
-            THE PLATFORM IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DO NOT GUARANTEE THE ACCURACY OF INFORMATION PROVIDED BY LENDERS OR THE SUCCESS OF ANY INVESTMENT.
+            THE PLATFORM IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT GUARANTEE THAT:
           </p>
+          <ul class="list-disc pl-6 space-y-2 mb-4">
+            <li>The Platform will be error-free or uninterrupted</li>
+            <li>Validation results will catch all data errors</li>
+            <li>Output will meet your specific requirements</li>
+            <li>The Platform will be compatible with all systems</li>
+          </ul>
           <p class="leading-relaxed mb-4">
-            INVESTING IN PRIVATE CREDIT INVOLVES SIGNIFICANT RISK, INCLUDING THE POTENTIAL LOSS OF YOUR ENTIRE INVESTMENT. PAST PERFORMANCE IS NOT INDICATIVE OF FUTURE RESULTS.
+            YOU USE THE PLATFORM AT YOUR OWN RISK. YOU ARE SOLELY RESPONSIBLE FOR VERIFYING THE ACCURACY OF OUTPUT AND FOR ANY DECISIONS MADE BASED ON THAT OUTPUT.
           </p>
         </section>
 
         <section class="mb-12">
           <h2 class="text-2xl font-bold text-darkest mb-4">10. Limitation of Liability</h2>
           <p class="leading-relaxed mb-4">
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, PRIMEBRIDGE FINANCE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE PLATFORM.
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, PRIMEBRIDGE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE PLATFORM, INCLUDING BUT NOT LIMITED TO:
+          </p>
+          <ul class="list-disc pl-6 space-y-2 mb-4">
+            <li>Lost profits or revenue</li>
+            <li>Data loss or corruption</li>
+            <li>Business interruption</li>
+            <li>Errors in validation or reporting</li>
+          </ul>
+          <p class="leading-relaxed mb-4">
+            OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID US IN THE 12 MONTHS PRECEDING THE CLAIM.
           </p>
         </section>
 
         <section class="mb-12">
           <h2 class="text-2xl font-bold text-darkest mb-4">11. Indemnification</h2>
           <p class="leading-relaxed mb-4">
-            You agree to indemnify and hold harmless PrimeBridge Finance from any claims, damages, or expenses arising from your use of the Platform or violation of these Terms.
+            You agree to indemnify and hold harmless PrimeBridge from any claims, damages, or expenses arising from your use of the Platform, your violation of these Terms, or your violation of any third-party rights.
           </p>
         </section>
 
         <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">12. Modifications</h2>
+          <h2 class="text-2xl font-bold text-darkest mb-4">12. Termination</h2>
           <p class="leading-relaxed mb-4">
-            We reserve the right to modify these Terms at any time. We will notify users of material changes. Your continued use of the Platform after such modifications constitutes acceptance of the updated Terms.
+            We may suspend or terminate your access to the Platform at any time for violation of these Terms or for any other reason. You may cancel your account at any time. Upon termination, your right to use the Platform ceases immediately.
           </p>
         </section>
 
         <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">13. Governing Law</h2>
+          <h2 class="text-2xl font-bold text-darkest mb-4">13. Modifications</h2>
+          <p class="leading-relaxed mb-4">
+            We reserve the right to modify these Terms at any time. We will notify users of material changes by posting the updated Terms and updating the "Last updated" date. Your continued use of the Platform after such modifications constitutes acceptance of the updated Terms.
+          </p>
+        </section>
+
+        <section class="mb-12">
+          <h2 class="text-2xl font-bold text-darkest mb-4">14. Governing Law</h2>
           <p class="leading-relaxed mb-4">
             These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to its conflict of law provisions.
           </p>
         </section>
 
         <section class="mb-12">
-          <h2 class="text-2xl font-bold text-darkest mb-4">14. Contact</h2>
+          <h2 class="text-2xl font-bold text-darkest mb-4">15. Contact</h2>
           <p class="leading-relaxed mb-4">
             For questions about these Terms, please contact us at:
           </p>
           <p class="leading-relaxed">
-            <a href="/contact" class="text-primary hover:underline">Contact PrimeBridge Finance</a>
+            <a href="/contact" class="text-primary hover:underline">Contact PrimeBridge</a>
           </p>
         </section>
       </div>

@@ -7,8 +7,8 @@ const redirect = Astro.url.searchParams.get('redirect');
 ---
 
 <BaseLayout
-  title="Log In to Your Account"
-  description="Access your PrimeBridge dashboard to track loan pools, view deals, manage investments, and monitor your private credit portfolio."
+  title="Log In | PrimeBridge"
+  description="Log in to your PrimeBridge account to access cloud features, API access, and saved validation history."
   image="/PrimeBridge.jpg"
 >
   <Header showNav={false} />
@@ -19,31 +19,37 @@ const redirect = Astro.url.searchParams.get('redirect');
       <div class="hidden lg:flex flex-col justify-start p-12 lg:p-16 pt-20 lg:pl-32" style="background-color: #1B365D;">
         <div class="max-w-md">
           <h1 class="text-3xl font-bold mb-6 text-white">
-            Welcome back to PrimeBridge
+            Welcome back
           </h1>
           <p class="text-xl mb-8" style="color: rgba(255,255,255,0.8);">
-            Access your dashboard to track applications, view deals, or manage your portfolio.
+            Access your saved tapes, validation history, and enterprise features.
           </p>
           <ul class="space-y-4">
             <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
               <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              Real-time application tracking
+              Cloud-stored validation history
             </li>
             <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
               <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              Secure document upload
+              Custom validation rules
             </li>
             <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
               <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              Direct communication with our team
+              API access for automation
             </li>
           </ul>
+
+          <div class="mt-10 pt-6 border-t border-white/10">
+            <p class="text-sm" style="color: rgba(255,255,255,0.6);">
+              Don't need an account? <a href="/upload" class="text-white underline">Use the free validator</a> — no signup required.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -56,7 +62,7 @@ const redirect = Astro.url.searchParams.get('redirect');
               <p class="text-dark mt-3">Enter your credentials to continue</p>
             </div>
 
-            <LoginForm client:load />
+            <LoginForm client:load redirectUrl={redirect || undefined} />
 
             <div class="mt-6 pt-6 border-t border-light text-center">
               <p class="text-dark">
@@ -69,7 +75,7 @@ const redirect = Astro.url.searchParams.get('redirect');
           </div>
 
           <p class="text-center text-medium text-sm mt-6">
-            Need help? <a href="mailto:support@primebridge.com" class="text-primary">Contact support</a>
+            Need help? <a href="mailto:hello@primebridge.finance" class="text-primary">hello@primebridge.finance</a>
           </p>
         </div>
       </div>

@@ -10,9 +10,11 @@ import { Alert, AlertDescription } from '../ui/Alert';
 
 interface SignupFormProps {
   defaultRole?: 'lender' | 'investor';
+  redirectUrl?: string;
+  unlockPending?: boolean;
 }
 
-export function SignupForm({ defaultRole }: SignupFormProps) {
+export function SignupForm({ defaultRole, redirectUrl, unlockPending }: SignupFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -48,8 +50,17 @@ export function SignupForm({ defaultRole }: SignupFormProps) {
         return;
       }
 
-      // Redirect based on role
-      window.location.href = result.redirectUrl || '/';
+      // Mark as authenticated for demo
+      localStorage.setItem('primebridge_auth', 'true');
+
+      // If unlocking pending validation, go back to upload with unlock flag
+      if (unlockPending && redirectUrl) {
+        window.location.href = `${redirectUrl}?unlocked=true`;
+        return;
+      }
+
+      // Use custom redirect or default based on role
+      window.location.href = redirectUrl || result.redirectUrl || '/';
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {

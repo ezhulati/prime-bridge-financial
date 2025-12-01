@@ -11,9 +11,10 @@ test.describe('Upload Page', () => {
     const headline = page.getByRole('heading', { level: 1 }).first();
     await expect(headline).toContainText('Validate your loan tape');
 
-    // Check trust indicators
-    await expect(page.getByText('No signup required').first()).toBeVisible();
+    // Check trust indicators (updated for signup gate flow)
+    await expect(page.getByText('Free to try').first()).toBeVisible();
     await expect(page.getByText('Data stays in your browser').first()).toBeVisible();
+    await expect(page.getByText('Create account to unlock exports').first()).toBeVisible();
 
     await expect(page).toHaveScreenshot('upload-hero.png', { fullPage: false });
   });
@@ -35,46 +36,50 @@ test.describe('Upload Page', () => {
     await expect(page.locator('main .bg-white').first()).toHaveScreenshot('upload-dropzone.png');
   });
 
-  test('should load sample data and show validation results', async ({ page }) => {
+  test('should load sample data and show validation preview (signup gate)', async ({ page }) => {
     // Wait for button to be hydrated
     const sampleButton = page.getByRole('button', { name: /sample data/i });
     await expect(sampleButton).toBeVisible({ timeout: 10000 });
     await sampleButton.click();
 
-    // Wait for validation to complete
-    await page.waitForSelector('text=Validation Complete', { timeout: 15000 });
+    // Wait for validation to complete - shows preview for non-logged-in users
+    await page.waitForSelector('text=Validation complete', { timeout: 15000 });
 
     // Check validation summary appears
-    await expect(page.locator('main').locator('text=Validation Complete').first()).toBeVisible();
+    await expect(page.locator('main').locator('text=Validation complete').first()).toBeVisible();
+
+    // Should show signup gate CTA for non-logged-in users
+    await expect(page.getByText('Create a free account to unlock')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Create free account/i })).toBeVisible();
 
     await expect(page).toHaveScreenshot('upload-validation-results.png', { fullPage: true });
   });
 
-  test('should show validation issues list', async ({ page }) => {
+  test('should show validation issues preview (blurred for non-logged-in)', async ({ page }) => {
     // Wait for and load sample data
     const sampleButton = page.getByRole('button', { name: /sample data/i });
     await expect(sampleButton).toBeVisible({ timeout: 10000 });
     await sampleButton.click();
-    await page.waitForSelector('text=Validation Complete', { timeout: 15000 });
+    await page.waitForSelector('text=Validation complete', { timeout: 15000 });
 
-    // Check for issues section - may say "Issues Found" or show error count
-    const hasIssues = await page.locator('text=/\\d+ errors?/i').isVisible().catch(() => false);
+    // Check for issues section - shows count but blurred for non-logged-in
+    const hasIssues = await page.locator('text=/Issues found/i').isVisible().catch(() => false);
     expect(hasIssues).toBeTruthy();
   });
 
-  test('should have export buttons after validation', async ({ page }) => {
+  test('should show signup CTA instead of export buttons for non-logged-in users', async ({ page }) => {
     // Wait for and load sample data
     const sampleButton = page.getByRole('button', { name: /sample data/i });
     await expect(sampleButton).toBeVisible({ timeout: 10000 });
     await sampleButton.click();
-    await page.waitForSelector('text=Validation Complete', { timeout: 15000 });
+    await page.waitForSelector('text=Validation complete', { timeout: 15000 });
 
-    // Check export buttons
-    const exportCsvButton = page.getByRole('button', { name: /Download Clean CSV/i });
-    const exportReportButton = page.getByRole('button', { name: /Download Report/i });
+    // Non-logged-in users see signup CTA instead of export buttons
+    await expect(page.getByRole('button', { name: /Create free account/i })).toBeVisible();
 
-    await expect(exportCsvButton).toBeVisible();
-    await expect(exportReportButton).toBeVisible();
+    // Export buttons should NOT be visible for non-logged-in users
+    const exportCsvButton = page.getByRole('button', { name: /Download clean tape/i });
+    await expect(exportCsvButton).not.toBeVisible();
   });
 
   test('should have reset functionality', async ({ page }) => {
@@ -82,10 +87,10 @@ test.describe('Upload Page', () => {
     const sampleButton = page.getByRole('button', { name: /sample data/i });
     await expect(sampleButton).toBeVisible({ timeout: 10000 });
     await sampleButton.click();
-    await page.waitForSelector('text=Validation Complete', { timeout: 15000 });
+    await page.waitForSelector('text=Validation complete', { timeout: 15000 });
 
-    // Find and click reset/new file button
-    const resetButton = page.getByRole('button', { name: /Upload New File|Start Over/i });
+    // Find and click reset/close button (X icon in header)
+    const resetButton = page.getByRole('button', { name: /Start over/i });
     if (await resetButton.isVisible()) {
       await resetButton.click();
 
@@ -126,11 +131,34 @@ test.describe('Upload Page', () => {
     const sampleButton = page.getByRole('button', { name: /sample data/i });
     await expect(sampleButton).toBeVisible({ timeout: 10000 });
     await sampleButton.click();
-    await page.waitForSelector('text=Validation Complete', { timeout: 15000 });
+    await page.waitForSelector('text=Validation complete', { timeout: 15000 });
 
     // Wait for any animations
     await page.waitForTimeout(500);
 
     await expect(page).toHaveScreenshot('upload-full-validated.png', { fullPage: true });
+  });
+
+  test('signup gate redirects to signup with params', async ({ page }) => {
+    // Load sample data
+    const sampleButton = page.getByRole('button', { name: /sample data/i });
+    await expect(sampleButton).toBeVisible({ timeout: 10000 });
+    await sampleButton.click();
+    await page.waitForSelector('text=Validation complete', { timeout: 15000 });
+
+    // Click the signup CTA
+    const signupButton = page.getByRole('button', { name: /Create free account/i });
+    await expect(signupButton).toBeVisible();
+    await signupButton.click();
+
+    // Should redirect to signup with params
+    await page.waitForURL(/\/signup\?redirect=.*unlock=true/);
+    expect(page.url()).toContain('/signup');
+    expect(page.url()).toContain('redirect');
+    expect(page.url()).toContain('unlock=true');
+
+    // Signup page should show unlock-specific messaging
+    await expect(page.getByText('Your validation is ready')).toBeVisible();
+    await expect(page.getByText('One more step')).toBeVisible();
   });
 });

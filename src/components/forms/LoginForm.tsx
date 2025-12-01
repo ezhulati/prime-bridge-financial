@@ -7,7 +7,11 @@ import { Input } from '../ui/Input';
 import { FormField } from '../ui/FormField';
 import { Alert, AlertDescription } from '../ui/Alert';
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectUrl?: string;
+}
+
+export function LoginForm({ redirectUrl }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,8 +41,11 @@ export function LoginForm() {
         return;
       }
 
-      // Redirect based on role
-      window.location.href = result.redirectUrl || '/';
+      // Mark as authenticated for demo
+      localStorage.setItem('primebridge_auth', 'true');
+
+      // Use custom redirect or default based on role
+      window.location.href = redirectUrl || result.redirectUrl || '/';
     } catch (err) {
       setError('An unexpected error occurred');
     } finally {
@@ -95,13 +102,6 @@ export function LoginForm() {
       <Button type="submit" fullWidth loading={isLoading}>
         Log in
       </Button>
-
-      <p className="text-center text-dark">
-        Don't have an account?{' '}
-        <a href="/signup" className="text-primary font-semibold">
-          Sign up
-        </a>
-      </p>
     </form>
   );
 }

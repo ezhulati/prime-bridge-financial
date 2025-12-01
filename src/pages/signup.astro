@@ -2,11 +2,16 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/layout/Header.astro';
 import { SignupForm } from '../components/forms/SignupForm';
+
+// Get URL params for redirect flow
+const url = new URL(Astro.request.url);
+const redirectUrl = url.searchParams.get('redirect') || '';
+const unlockPending = url.searchParams.get('unlock') === 'true';
 ---
 
 <BaseLayout
-  title="Create Your Account"
-  description="Join PrimeBridge to access private credit opportunities. Free account creation, no commitment required, bank-level security."
+  title="Create Account | PrimeBridge"
+  description="Create a PrimeBridge account to save your validation history, set up custom rules, and access enterprise features."
   image="/PrimeBridge_Finance.jpg"
 >
   <Header showNav={false} />
@@ -16,32 +21,60 @@ import { SignupForm } from '../components/forms/SignupForm';
       <!-- Left: Value Proposition -->
       <div class="hidden lg:flex flex-col justify-start p-12 lg:p-16 pt-20 lg:pl-32" style="background-color: #1B365D;">
         <div class="max-w-md">
-          <h1 class="text-3xl font-bold mb-6 text-white">
-            Join PrimeBridge Finance
-          </h1>
-          <p class="text-xl mb-8" style="color: rgba(255,255,255,0.8);">
-            Create your account to access private credit opportunities or list your loan pools.
-          </p>
+          {unlockPending ? (
+            <>
+              <p class="text-sm font-medium mb-4 px-3 py-1.5 bg-white/10 rounded-full inline-block" style="color: rgba(255,255,255,0.9);">
+                Your validation is ready
+              </p>
+              <h1 class="text-3xl font-bold mb-6 text-white">
+                One more step to see your results
+              </h1>
+              <p class="text-xl mb-8" style="color: rgba(255,255,255,0.8);">
+                Create a free account to unlock your full validation report and download the cleaned tape.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 class="text-3xl font-bold mb-6 text-white">
+                Unlock the full platform
+              </h1>
+              <p class="text-xl mb-8" style="color: rgba(255,255,255,0.8);">
+                Create an account to save your work and access enterprise features.
+              </p>
+            </>
+          )}
           <ul class="space-y-4">
             <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
               <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              Free to create an account
+              Save validation history in the cloud
             </li>
             <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
               <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              No commitment required
+              Create custom validation rules
             </li>
             <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
               <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
               </svg>
-              Bank-level security
+              Set up covenant monitoring alerts
+            </li>
+            <li class="flex items-center gap-3" style="color: rgba(255,255,255,0.9);">
+              <svg class="w-5 h-5" style="color: rgba(255,255,255,0.6);" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              Get API access for automation
             </li>
           </ul>
+
+          <div class="mt-10 pt-6 border-t border-white/10">
+            <p class="text-sm" style="color: rgba(255,255,255,0.6);">
+              Just want to try it? <a href="/upload" class="text-white underline">Use the free validator</a> — no signup required.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -50,11 +83,19 @@ import { SignupForm } from '../components/forms/SignupForm';
         <div class="w-full max-w-md">
           <div class="bg-white rounded-2xl border border-light p-8 lg:p-10 shadow-sm">
             <div class="text-center mb-8">
-              <h2 class="text-2xl font-bold text-darkest">Create your account</h2>
-              <p class="text-dark mt-3">Get started with PrimeBridge Finance</p>
+              <h2 class="text-2xl font-bold text-darkest">
+                {unlockPending ? 'Create free account' : 'Create your account'}
+              </h2>
+              <p class="text-dark mt-3">
+                {unlockPending ? 'Unlock your validation results' : 'Start saving your validation work'}
+              </p>
             </div>
 
-            <SignupForm client:load />
+            <SignupForm
+              client:load
+              redirectUrl={redirectUrl}
+              unlockPending={unlockPending}
+            />
 
             <div class="mt-6 pt-6 border-t border-light text-center">
               <p class="text-dark">

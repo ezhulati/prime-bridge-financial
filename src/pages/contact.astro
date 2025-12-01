@@ -9,7 +9,7 @@ const authUser = await getAuthUser(Astro.cookies);
 
 <BaseLayout
   title="Contact Us"
-  description="Get in touch with the PrimeBridge team. Whether you're a fintech lender or accredited investor, we're here to help you navigate private credit."
+  description="Get in touch with the PrimeBridge team. Questions about loan tape validation, covenant monitoring, or enterprise pricing? We're here to help."
   image="/PrimeBridge_Finance.jpg"
 >
   <Header user={authUser?.user} />
@@ -26,10 +26,34 @@ const authUser = await getAuthUser(Astro.cookies);
             Contact PrimeBridge
           </h1>
           <p class="text-lg text-dark leading-relaxed mb-8" style="max-width: 50ch;">
-            Have questions about listing your loan pools or investing in private credit? Our team is here to help.
+            Have questions about loan tape validation, covenant monitoring, or enterprise features? Our team is here to help.
           </p>
 
           <div class="space-y-6">
+            <div class="flex gap-4">
+              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-darkest">Product Questions</h3>
+                <p class="text-dark mt-1">Learn about tape validation, column mapping, validation rules, and exporting clean data.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-darkest">Covenant Monitoring</h3>
+                <p class="text-dark mt-1">Questions about tracking DSCR, delinquency rates, and getting alerts before breaches.</p>
+              </div>
+            </div>
+
             <div class="flex gap-4">
               <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,39 +61,15 @@ const authUser = await getAuthUser(Astro.cookies);
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-darkest">For Lenders</h3>
-                <p class="text-dark mt-1">Questions about listing loan pools, platform integration, or partnership opportunities.</p>
-              </div>
-            </div>
-
-            <div class="flex gap-4">
-              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-semibold text-darkest">For Investors</h3>
-                <p class="text-dark mt-1">Learn about deal access, accreditation requirements, or specific investment opportunities.</p>
-              </div>
-            </div>
-
-            <div class="flex gap-4">
-              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-semibold text-darkest">General Inquiries</h3>
-                <p class="text-dark mt-1">Press, partnerships, or any other questions about PrimeBridge Finance.</p>
+                <h3 class="font-semibold text-darkest">Enterprise & Integrations</h3>
+                <p class="text-dark mt-1">Custom validation rules, API access, LMS integrations, and dedicated support.</p>
               </div>
             </div>
           </div>
 
           <div class="mt-10 p-6 bg-lightest rounded-xl border border-light">
             <h4 class="font-semibold text-darkest mb-2">Response Time</h4>
-            <p class="text-dark text-sm">We typically respond within 1-2 business days. For urgent matters, please indicate in your message.</p>
+            <p class="text-dark text-sm">We typically respond within 1 business day. For urgent matters, please indicate in your message.</p>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ const authUser = await getAuthUser(Astro.cookies);
                   </svg>
                 </div>
                 <h3 class="text-xl font-bold text-darkest mb-2">Message sent</h3>
-                <p class="text-dark mb-6">We'll get back to you within 1-2 business days.</p>
+                <p class="text-dark mb-6">We'll get back to you within 1 business day.</p>
                 <button
                   type="button"
                   id="send-another"
@@ -143,7 +143,7 @@ const authUser = await getAuthUser(Astro.cookies);
 
               <div>
                 <label for="type" class="block text-sm font-medium text-darkest mb-2">
-                  I am a... <span class="text-error">*</span>
+                  What can we help with? <span class="text-error">*</span>
                 </label>
                 <select
                   id="type"
@@ -152,8 +152,10 @@ const authUser = await getAuthUser(Astro.cookies);
                   class="w-full min-h-[48px] px-4 rounded-md border border-medium bg-white text-darkest focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
                   <option value="">Select one</option>
-                  <option value="lender">Fintech Lender</option>
-                  <option value="investor">Accredited Investor</option>
+                  <option value="product">Product questions</option>
+                  <option value="enterprise">Enterprise pricing</option>
+                  <option value="integration">API / Integration</option>
+                  <option value="support">Technical support</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -181,7 +183,7 @@ const authUser = await getAuthUser(Astro.cookies);
                   rows="5"
                   required
                   class="w-full px-4 py-3 rounded-md border border-medium bg-white text-darkest placeholder:text-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
-                  placeholder="How can we help you?"
+                  placeholder="Tell us about your loan tape workflow and what you're looking for..."
                 ></textarea>
               </div>
 
